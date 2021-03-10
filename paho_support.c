@@ -36,6 +36,7 @@ Add following line at end of MQTTClient.h, before #endif
 #include	"x_errors_events.h"
 #include	"x_time.h"
 #include	"syslog.h"
+#include	"printfx.h"
 
 #include	"hal_config.h"
 
@@ -56,9 +57,16 @@ Add following line at end of MQTTClient.h, before #endif
 // #################################### Public/global functions ####################################
 
 void	vMqttDefaultHandler(MessageData * psMD) {
-	SL_ERR("Q[%d] R[%d] D[%d] I[%d] T:%s '%.*s'",
+#if 1
+	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
+		psMD->message->qos, psMD->message->retained,psMD->message->dup, psMD->message->id,
+		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
+		psMD->message->payloadlen, psMD->message->payload) ;
+#else
+	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d Topic='%s' PL='%.*s'",
 		psMD->message->qos, psMD->message->retained,psMD->message->dup, psMD->message->id,
 		psMD->topicName->cstring, psMD->message->payloadlen, psMD->message->payload) ;
+#endif
 }
 
 void	TimerCountdownMS(Timer * timer, uint32_t mSecTime) {

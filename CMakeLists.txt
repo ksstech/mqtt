@@ -16,5 +16,6 @@ idf_component_register(
 	INCLUDE_DIRS "."
 		"paho.mqtt.embedded-c/MQTTClient-C/src"
 		"${PP}"
+	PRIV_REQUIRES printfx
 	REQUIRES socketsX
 )
