@@ -16,6 +16,16 @@
 
 // ######################################## enumerations ###########################################
 
+enum {
+	stateMQTT_INVALID,
+	stateMQTT_RESOLVING,
+	stateMQTT_CONNECTING,
+	stateMQTT_SUBSCRIBING,
+	stateMQTT_RUNNING,
+	stateMQTT_STOP,
+	stateMQTT_DISCONNECT,
+	stateMQTT_CLOSE,
+} ;
 
 // ########################################## structures ###########################################
 
