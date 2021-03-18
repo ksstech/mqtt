@@ -1,5 +1,5 @@
 /*
- * paho_support.c
+ * paho_mqtt.c
  */
 
 /*
@@ -31,14 +31,16 @@ Add following line at end of MQTTClient.h, before #endif
 																								->	mqttwrite
 */
 
-#include	"paho_support.h"
+#include	"paho_mqtt.h"
 
 #include	"x_errors_events.h"
+#include	"x_string_to_values.h"
 #include	"x_time.h"
 #include	"syslog.h"
 #include	"printfx.h"
 
 #include	"hal_config.h"
+#include	"hal_variables.h"
 
 #include	<string.h>
 
@@ -53,46 +55,29 @@ Add following line at end of MQTTClient.h, before #endif
 
 // #################################### Public/global variables ####################################
 
+uint8_t	xMqttState ;
 
 // #################################### Public/global functions ####################################
 
-void	vMqttDefaultHandler(MessageData * psMD) {
-#if 1
-	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
-		psMD->message->qos, psMD->message->retained,psMD->message->dup, psMD->message->id,
-		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
-		psMD->message->payloadlen, psMD->message->payload) ;
-#else
-	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d Topic='%s' PL='%.*s'",
-		psMD->message->qos, psMD->message->retained,psMD->message->dup, psMD->message->id,
-		psMD->topicName->cstring, psMD->message->payloadlen, psMD->message->payload) ;
-#endif
-}
-
 void	TimerCountdownMS(Timer * timer, uint32_t mSecTime) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(timer)) ;
 	timer->xTicksToWait = pdMS_TO_TICKS(mSecTime) ;		// milliseconds to ticks
 	vTaskSetTimeOutState(&timer->xTimeOut) ; 			// Record the time function entered.
 }
 
 void	TimerCountdown(Timer * timer, uint32_t SecTime)  {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(timer)) ;
 	TimerCountdownMS(timer, SecTime * MILLIS_IN_SECOND) ;
 }
 
 int		TimerLeftMS(Timer * timer) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(timer)) ;
 	xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) ;
 	return timer->xTicksToWait * portTICK_PERIOD_MS ;
 }
 
 char	TimerIsExpired(Timer * timer) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(timer)) ;
 	return (xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE) ;
 }
 
 void	TimerInit(Timer * timer) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(timer)) ;
 	memset(timer, 0, sizeof(Timer)) ;
 }
 
@@ -107,13 +92,12 @@ void	TimerInit(Timer * timer) {
  * 			Error (<0)
  */
 int		network_read(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t mSecTime) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(psNetwork)) ;
 	int32_t	iRV = xNetSetRecvTimeOut(&psNetwork->sCtx, mSecTime) ;
 	if (iRV == erSUCCESS) {
 		iRV	= xNetRead(&psNetwork->sCtx, (char *)buffer, i16Len) ;
 	}
 	// paho does not want to know about EAGAIN, filter out and return 0...
-	return (iRV == i16Len) ? iRV : (iRV < 0) && (psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
+	return (iRV == i16Len) ? iRV : (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
 }
 
 int		network_write(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t mSecTime) {
@@ -170,5 +154,31 @@ int 	ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
 }
 
 void	MutexInit(Mutex * mutex)	{ mutex->sem = xSemaphoreCreateMutex() ; }
+
 void	MutexLock(Mutex * mutex)	{ xSemaphoreTake(mutex->sem, portMAX_DELAY) ; }
+
 void	MutexUnlock(Mutex * mutex)	{ xSemaphoreGive(mutex->sem) ; }
+
+void	vMqttDefaultHandler(MessageData * psMD) {
+	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
+		psMD->message->qos, psMD->message->retained,psMD->message->dup, psMD->message->id,
+		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
+		psMD->message->payloadlen, psMD->message->payload) ;
+}
+
+/*
+ * This function runs in the context of the 'Control' task and as such can change setting whilst
+ * the swTX task is in any stage, most likely the'RUNNING' stage whilst waiting for something to send.
+ */
+int32_t CmndMQTT(cli_t * psCLI) {
+	uint32_t	Addr ;
+	char * pTmp = pcStringParseIpAddr(psCLI->pcParse, (px_t) &Addr) ;
+	if (pTmp == pcFAILURE) {
+		return erFAILURE ;
+	}
+	psCLI->pcParse	= pTmp ;
+	nvsWifi.ipMQTT	= Addr ;
+	VarsFlag		|= varFLAG_IP_INFO ;
+	xMqttState		= stateMQTT_STOP ;
+	return erSUCCESS ;
+}

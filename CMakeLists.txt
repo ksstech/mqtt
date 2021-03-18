@@ -1,7 +1,7 @@
 set( PP "paho.mqtt.embedded-c/MQTTPacket/src" )
 
 idf_component_register(
-	SRCS "paho_support.c"
+	SRCS "paho_mqtt.c"
 		"paho.mqtt.embedded-c/MQTTClient-C/src/MQTTClient.c"
 		"${PP}/MQTTConnectClient.c"
 		"${PP}/MQTTConnectServer.c"
@@ -17,5 +17,5 @@ idf_component_register(
 		"paho.mqtt.embedded-c/MQTTClient-C/src"
 		"${PP}"
 	PRIV_REQUIRES printfx
-	REQUIRES socketsX
+	REQUIRES socketsX stringsX
 )
