@@ -56,6 +56,7 @@ Add following line at end of MQTTClient.h, before #endif
 // #################################### Public/global variables ####################################
 
 uint8_t	xMqttState ;
+char	MQTTHostName[sizeof("000.000.000.000")] ;
 
 // #################################### Public/global functions ####################################
 
@@ -115,16 +116,18 @@ void	MQTTNetworkInit(Network * psNetwork) {
 	psNetwork->mqttwrite	= network_write ;
 }
 
-int		MQTTNetworkConnect(Network * psNetwork, const char * pHostname, sock_sec_t * psSec) {
+int		MQTTNetworkConnect(Network * psNetwork) {
 	memset(&psNetwork->sCtx, 0 , sizeof(netx_t)) ;
-	psNetwork->sCtx.pHost				= pHostname ;
-	if (psSec) {
-		psNetwork->sCtx.psSec			= psSec ;
-		psNetwork->sCtx.sa_in.sin_port	= htons(IP_PORT_MQTTS) ;
-	} else {
-		psNetwork->sCtx.sa_in.sin_port	= htons(IP_PORT_MQTT) ;
+	const char * pMQTTHost ;
+	if (nvsWifi.ipMQTT) {						// MQTT broker specified
+		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT) ;
+		psNetwork->sCtx.pHost = MQTTHostName ;
+		SL_INFO("Using override MQTT broker IP=%s\n", pMQTTHost) ;
+	} else {									// default cloud MQTT host
+		psNetwork->sCtx.pHost = HostInfo[sNVSvars.HostMQTT].pName ;
 	}
-	psNetwork->sCtx.type				= SOCK_STREAM ;
+	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT) ;
+	psNetwork->sCtx.type			= SOCK_STREAM ;
 	psNetwork->sCtx.sa_in.sin_family	= AF_INET ;
 #if 0
 	psNetwork->sCtx.d_write		= 1 ;

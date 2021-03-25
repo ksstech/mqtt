@@ -56,6 +56,12 @@ typedef	struct { QueueHandle_t	queue ; } Queue ;
 
 typedef struct { TaskHandle_t	task ; } Thread ;
 
+typedef struct	sQueuePublish {
+	char *	pTopic ;
+    void *	pvPayload ;
+    size_t	xLoadlen;
+} sQueuePublish ;
+
 // #################################### Public/global variables ####################################
 
 extern uint8_t	xMqttState ;
@@ -69,7 +75,7 @@ char	TimerIsExpired(Timer * timer) ;
 void	TimerInit(Timer * timer) ;
 
 void	MQTTNetworkInit(Network * psNetwork) ;
-int		MQTTNetworkConnect(Network * psNetwork, const char * addr, sock_sec_t * psSec) ;
+int		MQTTNetworkConnect(Network * psNetwork) ;
 
 int 	ThreadStart(Thread * thread, void (*fn) (void *), void * arg) ;
 
@@ -80,9 +86,6 @@ void	MutexUnlock(Mutex * mutex) ;
 int32_t CmndMQTT(cli_t * psCLI) ;
 struct MessageData ;
 void	vMqttDefaultHandler(struct MessageData * psMD) ;
-
-void	MQTTNetworkInit(Network * psNetwork) ;
-int		MQTTNetworkConnect(Network * psNetwork, const char * addr, sock_sec_t * psSec) ;
 
 #ifdef __cplusplus
 }
