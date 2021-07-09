@@ -4,14 +4,18 @@
 
 #pragma		once
 
+#if 1
+	#include	"FreeRTOS_Support.h"
+#else
+	#include	"freertos/FreeRTOS.h"
+	#include	"freertos/semphr.h"
+	#include	"freertos/queue.h"
+	#include	"freertos/task.h"
+	#include	"freertos/portmacro.h"
+#endif
+
 #include	"socketsX.h"								// hal_config + LwIP + mbedTLS
 #include	"commands.h"
-
-#include	"freertos/FreeRTOS.h"
-#include	"freertos/semphr.h"
-#include	"freertos/queue.h"
-#include	"freertos/task.h"
-#include	"freertos/portmacro.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,24 +72,23 @@ extern uint8_t	xMqttState ;
 
 // #################################### Public/global functions ####################################
 
-void	TimerCountdownMS(Timer * timer, uint32_t mSecTime) ;
-void	TimerCountdown(Timer * timer, uint32_t SecTime) ;
-int		TimerLeftMS(Timer * timer) ;
-char	TimerIsExpired(Timer * timer) ;
-void	TimerInit(Timer * timer) ;
+void TimerCountdownMS(Timer * timer, uint32_t mSecTime) ;
+void TimerCountdown(Timer * timer, uint32_t SecTime) ;
+int	TimerLeftMS(Timer * timer) ;
+char TimerIsExpired(Timer * timer) ;
+void TimerInit(Timer * timer) ;
 
-void	MQTTNetworkInit(Network * psNetwork) ;
-int		MQTTNetworkConnect(Network * psNetwork) ;
+void MQTTNetworkInit(Network * psNetwork) ;
+int	MQTTNetworkConnect(Network * psNetwork) ;
+int ThreadStart(Thread * thread, void (*fn) (void *), void * arg) ;
 
-int 	ThreadStart(Thread * thread, void (*fn) (void *), void * arg) ;
+void MutexInit(Mutex * mutex) ;
+void MutexLock(Mutex * mutex) ;
+void MutexUnlock(Mutex * mutex) ;
 
-void	MutexInit(Mutex * mutex) ;
-void 	MutexLock(Mutex * mutex) ;
-void	MutexUnlock(Mutex * mutex) ;
-
-int32_t CmndMQTT(cli_t * psCLI) ;
+int CmndMQTT(cli_t * psCLI) ;
 struct MessageData ;
-void	vMqttDefaultHandler(struct MessageData * psMD) ;
+void vMqttDefaultHandler(struct MessageData * psMD) ;
 
 #ifdef __cplusplus
 }
