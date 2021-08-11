@@ -31,18 +31,18 @@ Add following line at end of MQTTClient.h, before #endif
 																								->	mqttwrite
 */
 
+#include	"hal_variables.h"
 #include	"paho_mqtt.h"
+#include	"MQTTClient.h"
 
-#include	"x_errors_events.h"
+#include	"printfx.h"
+#include	"syslog.h"
 #include	"x_string_to_values.h"
 #include	"x_time.h"
-#include	"syslog.h"
-#include	"printfx.h"
-
-#include	"hal_config.h"
-#include	"hal_variables.h"
+#include	"x_errors_events.h"
 
 #include	<string.h>
+#include	<stdint.h>
 
 #define	debugFLAG					0x0000
 #define	debugREAD					(debugFLAG & 0x0001)
@@ -61,23 +61,26 @@ char	MQTTHostName[sizeof("000.000.000.000")] ;
 // #################################### Public/global functions ####################################
 
 void TimerCountdownMS(Timer * timer, uint32_t mSecTime) {
-//	MALLOC_MARK();
 	timer->xTicksToWait = pdMS_TO_TICKS(mSecTime) ;		// milliseconds to ticks
-//	MALLOC_CHECK();
 	vTaskSetTimeOutState(&timer->xTimeOut) ; 			// Record the time function entered.
-//	MALLOC_CHECK();
 }
 
-void TimerCountdown(Timer * timer, uint32_t SecTime)  { TimerCountdownMS(timer, SecTime * MILLIS_IN_SECOND); }
+void TimerCountdown(Timer * timer, uint32_t SecTime)  {
+	TimerCountdownMS(timer, SecTime * MILLIS_IN_SECOND);
+}
 
 int	TimerLeftMS(Timer * timer) {
 	xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) ;
 	return timer->xTicksToWait * portTICK_PERIOD_MS ;
 }
 
-char TimerIsExpired(Timer * timer) { return (xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE); }
+char TimerIsExpired(Timer * timer) {
+	return (xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE);
+}
 
-void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
+void TimerInit(Timer * timer) {
+	memset(timer, 0, sizeof(Timer));
+}
 
 /**
  * network_read() -
@@ -119,9 +122,9 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	} else {									// default cloud MQTT host
 		psNetwork->sCtx.pHost = HostInfo[sNVSvars.HostMQTT].pName ;
 	}
+	psNetwork->sCtx.type = SOCK_STREAM ;
+	psNetwork->sCtx.sa_in.sin_family= AF_INET ;
 	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT) ;
-	psNetwork->sCtx.type			= SOCK_STREAM ;
-	psNetwork->sCtx.sa_in.sin_family	= AF_INET ;
 #if 0
 	psNetwork->sCtx.d_write		= 1 ;
 	psNetwork->sCtx.d_read		= 1 ;

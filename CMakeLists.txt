@@ -1,7 +1,6 @@
 set( PPaho "${PRepo}/paho.mqtt.embedded-c" )
 
-idf_component_register(
-	SRCS "paho_mqtt.c"
+set( srcs "paho_mqtt.c"
 		"${PPaho}/MQTTClient-C/src/MQTTClient.c"
 		"${PPaho}/MQTTPacket/src/MQTTConnectClient.c"
 		"${PPaho}/MQTTPacket/src/MQTTConnectServer.c"
@@ -12,10 +11,10 @@ idf_component_register(
 		"${PPaho}/MQTTPacket/src/MQTTSubscribeClient.c"
 		"${PPaho}/MQTTPacket/src/MQTTSubscribeServer.c"
 		"${PPaho}/MQTTPacket/src/MQTTUnsubscribeClient.c"
-		"${PPaho}/MQTTPacket/src/MQTTUnsubscribeServer.c"
-	INCLUDE_DIRS "."
-		"${PPaho}/MQTTClient-C/src"
-		"${PPaho}/MQTTPacket/src"
-	PRIV_REQUIRES printfx
-	REQUIRES socketsX stringsX
-)
+		"${PPaho}/MQTTPacket/src/MQTTUnsubscribeServer.c" )
+set( include_dirs "."
+				"${PPaho}/MQTTClient-C/src" 
+				"${PPaho}/MQTTPacket/src" )
+set( requires commands rtos-support socketsX )
+set( priv_requires common hal_esp32 printfx stringsX syslog )
+idf_component_register(SRCS ${srcs} INCLUDE_DIRS ${include_dirs} REQUIRES ${requires} PRIV_REQUIRES ${priv_requires})

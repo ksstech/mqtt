@@ -4,18 +4,11 @@
 
 #pragma		once
 
-#if 1
-	#include	"FreeRTOS_Support.h"
-#else
-	#include	"freertos/FreeRTOS.h"
-	#include	"freertos/semphr.h"
-	#include	"freertos/queue.h"
-	#include	"freertos/task.h"
-	#include	"freertos/portmacro.h"
-#endif
-
-#include	"socketsX.h"								// hal_config + LwIP + mbedTLS
+#include	"socketsX.h"								// x_ubuf FreeRTOS_Support LwIP mbedTLS
 #include	"commands.h"
+
+//#include	<stddef.h>
+//#include	<stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +16,6 @@ extern "C" {
 
 // ########################################### Macros ############################################
 
-#define	MQTT_TASK									// enable basic 2nd task functionality
 
 // ######################################## enumerations ###########################################
 
@@ -40,31 +32,30 @@ enum {
 
 // ########################################## structures ###########################################
 
-typedef struct {
-	TickType_t	xTicksToWait ;
-	TimeOut_t	xTimeOut ;
-} Timer ;
+typedef struct { SemaphoreHandle_t sem ; } Mutex ;
 
-typedef struct network_s Network ;
+typedef	struct { QueueHandle_t	queue; } Queue ;
 
-struct network_s {
-	int (*mqttread) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime) ;
-	int (*mqttwrite) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime) ;
-	netx_t		sCtx ;
-	sock_sec_t	sSec ;
-} ;
+typedef struct { TaskHandle_t	task; } Thread ;
 
-typedef struct { SemaphoreHandle_t	sem ; } Mutex ;
-
-typedef	struct { QueueHandle_t	queue ; } Queue ;
-
-typedef struct { TaskHandle_t	task ; } Thread ;
-
-typedef struct	sQueuePublish {
+typedef struct sQueuePublish {
 	char *	pTopic ;
     void *	pvPayload ;
     size_t	xLoadlen;
 } sQueuePublish ;
+
+typedef struct Timer {
+	TickType_t	xTicksToWait ;
+	TimeOut_t	xTimeOut ;
+} Timer ;
+
+typedef struct Network Network ;
+struct Network {
+	int (*mqttread) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime) ;
+	int (*mqttwrite) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime) ;
+	netx_t		sCtx ;
+	sock_sec_t	sSec ;
+};
 
 // #################################### Public/global variables ####################################
 
@@ -86,12 +77,10 @@ void MutexInit(Mutex * mutex) ;
 void MutexLock(Mutex * mutex) ;
 void MutexUnlock(Mutex * mutex) ;
 
-int CmndMQTT(cli_t * psCLI) ;
 struct MessageData ;
 void vMqttDefaultHandler(struct MessageData * psMD) ;
+int CmndMQTT(cli_t * psCLI) ;
 
 #ifdef __cplusplus
 }
 #endif
-
-#include	"MQTTClient.h"
