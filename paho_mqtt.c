@@ -164,22 +164,3 @@ void vMqttDefaultHandler(MessageData * psMD) {
 		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
 		psMD->message->payloadlen, psMD->message->payload) ;
 }
-
-/*
- * This function runs in the context of the 'Control' task and as such can change setting whilst
- * the swTX task is in any stage, most likely the'RUNNING' stage whilst waiting for something to send.
- */
-int CmndMQTT(cli_t * psCLI) {
-	uint32_t Addr ;
-	char * pTmp = pcStringParseIpAddr(psCLI->pcParse, (px_t) &Addr) ;
-	if (pTmp == pcFAILURE) return erFAILURE ;
-	uint16_t Port ;
-	pTmp = pcStringParseValueRange(psCLI->pcParse = pTmp, (px_t) &Port, vfUXX, vs16B, ":", (x32_t) UINT16_MIN, (x32_t) UINT16_MAX) ;
-	if (pTmp == pcFAILURE) return erFAILURE ;
-	psCLI->pcParse		= pTmp ;
-	nvsWifi.ipMQTT		= Addr ;
-	nvsWifi.ipMQTTport	= Port ;
-	BlobsFlag		|= varFLAG_IP_INFO ;
-	xMqttState		= stateMQTT_STOP ;
-	return erSUCCESS ;
-}

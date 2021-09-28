@@ -5,10 +5,6 @@
 #pragma		once
 
 #include	"socketsX.h"								// x_ubuf FreeRTOS_Support LwIP mbedTLS
-#include	"commands.h"
-
-//#include	<stddef.h>
-//#include	<stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,7 +75,6 @@ void MutexUnlock(Mutex * mutex) ;
 
 struct MessageData ;
 void vMqttDefaultHandler(struct MessageData * psMD) ;
-int CmndMQTT(cli_t * psCLI) ;
 
 #ifdef __cplusplus
 }
