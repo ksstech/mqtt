@@ -32,7 +32,6 @@ Add following line at end of MQTTClient.h, before #endif
 */
 
 #include	"hal_variables.h"
-#include	"paho_mqtt.h"
 #include	"MQTTClient.h"
 
 #include	"printfx.h"
@@ -117,7 +116,7 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	if (nvsWifi.ipMQTT) {						// MQTT broker specified
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT) ;
 		psNetwork->sCtx.pHost = MQTTHostName ;
-		SL_INFO("Using override MQTT broker IP=%s\n", MQTTHostName) ;
+		SL_NOT("Using override MQTT broker IP=%s\n", MQTTHostName) ;
 	} else {									// default cloud MQTT host
 		psNetwork->sCtx.pHost = HostInfo[sNVSvars.HostMQTT].pName ;
 	}
