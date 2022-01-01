@@ -93,7 +93,8 @@ void TimerInit(Timer * timer) {
  */
 int	network_read(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t mSecTime) {
 	int	iRV = xNetSetRecvTimeOut(&psNetwork->sCtx, mSecTime) ;
-	if (iRV == erSUCCESS) iRV = xNetRead(&psNetwork->sCtx, (char *)buffer, i16Len) ;
+	if (iRV == erSUCCESS)
+		iRV = xNetRead(&psNetwork->sCtx, (char *)buffer, i16Len) ;
 	// paho does not want to know about EAGAIN, filter out and return 0...
 	return (iRV == i16Len) ? iRV : (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
 }
