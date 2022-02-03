@@ -119,7 +119,7 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 		psNetwork->sCtx.pHost = MQTTHostName ;
 		SL_NOT("Using override MQTT broker IP=%s\n", MQTTHostName) ;
 	} else {									// default cloud MQTT host
-		psNetwork->sCtx.pHost = HostInfo[sNVSvars.HostMQTT].pName ;
+		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName ;
 	}
 	psNetwork->sCtx.type = SOCK_STREAM ;
 	psNetwork->sCtx.sa_in.sin_family= AF_INET ;
