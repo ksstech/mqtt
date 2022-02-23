@@ -56,7 +56,7 @@ struct Network {
 
 // #################################### Public/global variables ####################################
 
-extern uint8_t	xMqttState ;
+extern volatile uint8_t	xMqttState;
 
 // #################################### Public/global functions ####################################
 
