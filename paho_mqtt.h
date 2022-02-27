@@ -5,6 +5,7 @@
 #pragma		once
 
 #include	"socketsX.h"								// x_ubuf FreeRTOS_Support LwIP mbedTLS
+#include	"printfx.h"
 
 #ifdef __cplusplus
 extern "C" {
