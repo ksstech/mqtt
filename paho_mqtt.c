@@ -118,9 +118,9 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	psNetwork->sCtx.sa_in.sin_family= AF_INET;
 	psNetwork->sCtx.flags = SO_REUSEADDR;
 	if (nvsWifi.ipMQTT) {						// MQTT broker specified
-		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT) ;
-		psNetwork->sCtx.pHost = MQTTHostName ;
-		SL_NOT("Using override MQTT broker IP=%s\n", MQTTHostName) ;
+		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT);
+		psNetwork->sCtx.pHost = MQTTHostName;
+		SL_NOT("Using override MQTT broker IP=%s\n", MQTTHostName);
 	} else {									// default cloud MQTT host
 		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName ;
 	}
