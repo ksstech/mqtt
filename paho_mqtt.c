@@ -122,13 +122,13 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 		psNetwork->sCtx.pHost = MQTTHostName;
 		SL_NOT("Using override MQTT broker IP=%s\n", MQTTHostName);
 	} else {									// default cloud MQTT host
-		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName ;
+		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
-	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT) ;
+	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT);
 #if 0
-	psNetwork->sCtx.d_write		= 1 ;
-	psNetwork->sCtx.d_read		= 1 ;
-//	psNetwork->sCtx.d_data		= 1 ;
+	psNetwork->sCtx.d_write		= 1;
+	psNetwork->sCtx.d_read		= 1;
+//	psNetwork->sCtx.d_data		= 1;
 #endif
 	return xNetOpen(&psNetwork->sCtx) ;
 }
