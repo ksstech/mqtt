@@ -114,6 +114,8 @@ void MQTTNetworkInit(Network * psNetwork) {
 
 int	MQTTNetworkConnect(Network * psNetwork) {
 	memset(&psNetwork->sCtx, 0 , sizeof(netx_t)) ;
+	psNetwork->sCtx.type = SOCK_STREAM;
+	psNetwork->sCtx.sa_in.sin_family= AF_INET;
 	psNetwork->sCtx.flags = SO_REUSEADDR;
 	if (nvsWifi.ipMQTT) {						// MQTT broker specified
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT) ;
@@ -122,8 +124,6 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	} else {									// default cloud MQTT host
 		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName ;
 	}
-	psNetwork->sCtx.type = SOCK_STREAM ;
-	psNetwork->sCtx.sa_in.sin_family= AF_INET ;
 	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT) ;
 #if 0
 	psNetwork->sCtx.d_write		= 1 ;
