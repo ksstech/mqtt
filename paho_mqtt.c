@@ -114,6 +114,7 @@ void MQTTNetworkInit(Network * psNetwork) {
 
 int	MQTTNetworkConnect(Network * psNetwork) {
 	memset(&psNetwork->sCtx, 0 , sizeof(netx_t)) ;
+	psNetwork->sCtx.flags = SO_REUSEADDR;
 	if (nvsWifi.ipMQTT) {						// MQTT broker specified
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT) ;
 		psNetwork->sCtx.pHost = MQTTHostName ;
