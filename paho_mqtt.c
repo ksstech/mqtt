@@ -152,11 +152,11 @@ int ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
 	return rc;
 }
 
-void MutexInit(Mutex * mutex)	{ mutex->sem = xSemaphoreCreateMutex() ; }
+void MutexInit(Mutex * mutex)	{ mutex->sem = xRtosSemaphoreInit() ; }
 
-void MutexLock(Mutex * mutex)	{ xSemaphoreTake(mutex->sem, portMAX_DELAY) ; }
+void MutexLock(Mutex * mutex)	{ xRtosSemaphoreTake(&mutex->sem, portMAX_DELAY) ; }
 
-void MutexUnlock(Mutex * mutex)	{ xSemaphoreGive(mutex->sem) ; }
+void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem) ; }
 
 void vMqttDefaultHandler(MessageData * psMD) {
 	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
