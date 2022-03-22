@@ -23,25 +23,22 @@ MQTTStartTask		->	MQTTRun	(unused)	->	cycle
 						vMqtt_TaskTx		->	MQTTPublish			->	sendPacket
 						MQTTInitSubscribe	->	MQTTSubscribe		->	sendPacket
 												MQTTUnsubscribe		->	sendPacket				->	MutexLock
-Changes required:
------------------
-
+																								->	mqttwrite
+===== Changes required =====
 Add following line at end of MQTTClient.h, before #endif
 	int cycle(MQTTClient* c, Timer* timer) ;
-																								->	mqttwrite
 */
+
+#include	<string.h>
+#include	<stdint.h>
 
 #include	"hal_variables.h"
 #include	"MQTTClient.h"
 
-#include	"printfx.h"
 #include	"syslog.h"
 #include	"x_string_to_values.h"
 #include	"x_time.h"
 #include	"x_errors_events.h"
-
-#include	<string.h>
-#include	<stdint.h>
 
 #define	debugFLAG					0x0000
 #define	debugREAD					(debugFLAG & 0x0001)
@@ -64,22 +61,16 @@ void TimerCountdownMS(Timer * timer, uint32_t mSecTime) {
 	vTaskSetTimeOutState(&timer->xTimeOut) ; 			// Record the time function entered.
 }
 
-void TimerCountdown(Timer * timer, uint32_t SecTime)  {
-	TimerCountdownMS(timer, SecTime * MILLIS_IN_SECOND);
-}
+void TimerCountdown(Timer * timer, uint32_t SecTime) { TimerCountdownMS(timer, SecTime * 1000); }
 
 int	TimerLeftMS(Timer * timer) {
 	xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) ;
 	return timer->xTicksToWait * portTICK_PERIOD_MS ;
 }
 
-char TimerIsExpired(Timer * timer) {
-	return (xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE);
-}
+char TimerIsExpired(Timer * timer) { return (xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE); }
 
-void TimerInit(Timer * timer) {
-	memset(timer, 0, sizeof(Timer));
-}
+void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
 
 /**
  * network_read() -
@@ -93,8 +84,9 @@ void TimerInit(Timer * timer) {
  */
 int	network_read(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t mSecTime) {
 	int	iRV = xNetSetRecvTimeOut(&psNetwork->sCtx, mSecTime) ;
-	if (iRV == erSUCCESS)
-		iRV = xNetRead(&psNetwork->sCtx, (char *)buffer, i16Len) ;
+	if (iRV == erSUCCESS) {
+		iRV = xNetRead(&psNetwork->sCtx, (char *)buffer, i16Len);
+	}
 	// paho does not want to know about EAGAIN, filter out and return 0...
 	return (iRV == i16Len) ? iRV : (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
 }
@@ -102,7 +94,9 @@ int	network_read(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t
 int	network_write(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t mSecTime) {
 	psNetwork->sCtx.tOut = mSecTime ;
 	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE) ;
-	if (iRV > erSUCCESS) iRV = xNetWrite(&psNetwork->sCtx, (char *) buffer, i16Len) ;
+	if (iRV > erSUCCESS) {
+		iRV = xNetWrite(&psNetwork->sCtx, (char *) buffer, i16Len);
+	}
 	return iRV ;
 }
 
