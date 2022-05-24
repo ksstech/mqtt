@@ -51,17 +51,17 @@ Add following line at end of MQTTClient.h, before #endif
 
 // #################################### Public/global variables ####################################
 
-volatile uint8_t xMqttState;
+volatile u8_t xMqttState;
 char	MQTTHostName[sizeof("000.000.000.000")] ;
 
 // #################################### Public/global functions ####################################
 
-void TimerCountdownMS(Timer * timer, uint32_t mSecTime) {
+void TimerCountdownMS(Timer * timer, u32_t mSecTime) {
 	timer->xTicksToWait = pdMS_TO_TICKS(mSecTime) ;		// milliseconds to ticks
 	vTaskSetTimeOutState(&timer->xTimeOut) ; 			// Record the time function entered.
 }
 
-void TimerCountdown(Timer * timer, uint32_t SecTime) { TimerCountdownMS(timer, SecTime * 1000); }
+void TimerCountdown(Timer * timer, u32_t SecTime) { TimerCountdownMS(timer, SecTime * 1000); }
 
 int	TimerLeftMS(Timer * timer) {
 	xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) ;
@@ -82,20 +82,20 @@ void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
  * 			Timeout (0)
  * 			Error (<0)
  */
-int	network_read(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t mSecTime) {
+int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
 	int	iRV = xNetSetRecvTimeOut(&psNetwork->sCtx, mSecTime) ;
 	if (iRV == erSUCCESS) {
-		iRV = xNetRead(&psNetwork->sCtx, (char *)buffer, i16Len);
+		iRV = xNetRead(&psNetwork->sCtx, buffer, i16Len);
 	}
 	// paho does not want to know about EAGAIN, filter out and return 0...
 	return (iRV == i16Len) ? iRV : (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
 }
 
-int	network_write(Network * psNetwork, uint8_t * buffer, int16_t i16Len, uint32_t mSecTime) {
+int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
 	psNetwork->sCtx.tOut = mSecTime ;
 	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE) ;
 	if (iRV > erSUCCESS) {
-		iRV = xNetWrite(&psNetwork->sCtx, (char *) buffer, i16Len);
+		iRV = xNetWrite(&psNetwork->sCtx, buffer, i16Len);
 	}
 	return iRV ;
 }
