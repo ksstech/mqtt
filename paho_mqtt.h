@@ -61,11 +61,11 @@ extern volatile uint8_t	xMqttState;
 
 // #################################### Public/global functions ####################################
 
-void TimerCountdownMS(Timer * timer, uint32_t mSecTime) ;
-void TimerCountdown(Timer * timer, uint32_t SecTime) ;
-int	TimerLeftMS(Timer * timer) ;
-char TimerIsExpired(Timer * timer) ;
-void TimerInit(Timer * timer) ;
+void TimerCountdownMS(Timer * timer, unsigned int mSecTime);
+void TimerCountdown(Timer * timer, unsigned int SecTime);
+int	TimerLeftMS(Timer * timer);
+char TimerIsExpired(Timer * timer);
+void TimerInit(Timer * timer);
 
 void MQTTNetworkInit(Network * psNetwork) ;
 int	MQTTNetworkConnect(Network * psNetwork) ;

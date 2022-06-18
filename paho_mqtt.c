@@ -56,12 +56,12 @@ char	MQTTHostName[sizeof("000.000.000.000")] ;
 
 // #################################### Public/global functions ####################################
 
-void TimerCountdownMS(Timer * timer, u32_t mSecTime) {
+void TimerCountdownMS(Timer * timer, unsigned int mSecTime) {
 	timer->xTicksToWait = pdMS_TO_TICKS(mSecTime) ;		// milliseconds to ticks
 	vTaskSetTimeOutState(&timer->xTimeOut) ; 			// Record the time function entered.
 }
 
-void TimerCountdown(Timer * timer, u32_t SecTime) { TimerCountdownMS(timer, SecTime * 1000); }
+void TimerCountdown(Timer * timer, unsigned int SecTime) { TimerCountdownMS(timer, SecTime * 1000); }
 
 int	TimerLeftMS(Timer * timer) {
 	xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) ;
