@@ -29,20 +29,14 @@ Add following line at end of MQTTClient.h, before #endif
 	int cycle(MQTTClient* c, Timer* timer) ;
 */
 
-#include	<string.h>
-#include	<stdint.h>
-
 #include	"hal_variables.h"
 #include	"MQTTClient.h"
-
 #include	"syslog.h"
 #include	"x_string_to_values.h"
 #include	"x_time.h"
 #include	"x_errors_events.h"
 
 #define	debugFLAG					0x0000
-#define	debugREAD					(debugFLAG & 0x0001)
-#define	debugWRITE					(debugFLAG & 0x0002)
 
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)
 #define	debugTRACK					(debugFLAG_GLOBAL & debugFLAG & 0x2000)
@@ -52,7 +46,7 @@ Add following line at end of MQTTClient.h, before #endif
 // #################################### Public/global variables ####################################
 
 volatile u8_t xMqttState;
-char	MQTTHostName[sizeof("000.000.000.000")] ;
+char MQTTHostName[sizeof("000.000.000.000")];
 
 // #################################### Public/global functions ####################################
 
@@ -84,9 +78,8 @@ void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
  */
 int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
 	int	iRV = xNetSetRecvTimeOut(&psNetwork->sCtx, mSecTime) ;
-	if (iRV == erSUCCESS) {
+	if (iRV == erSUCCESS)
 		iRV = xNetRead(&psNetwork->sCtx, buffer, i16Len);
-	}
 	// paho does not want to know about EAGAIN, filter out and return 0...
 	return (iRV == i16Len) ? iRV : (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
 }
@@ -94,9 +87,8 @@ int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTim
 int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
 	psNetwork->sCtx.tOut = mSecTime ;
 	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE) ;
-	if (iRV > erSUCCESS) {
+	if (iRV > erSUCCESS)
 		iRV = xNetWrite(&psNetwork->sCtx, buffer, i16Len);
-	}
 	return iRV ;
 }
 
@@ -133,7 +125,7 @@ int	MQTTNetworkConnect(Network * psNetwork) {
  */
 int ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
 	int rc = 0;
-	uint16_t usTaskStackSize = (configMINIMAL_STACK_SIZE * 5);
+	u16_t usTaskStackSize = (configMINIMAL_STACK_SIZE * 5);
 	UBaseType_t uxTaskPriority = uxTaskPriorityGet(NULL); /* set the priority as the same as the calling task*/
 
 	rc = xTaskCreate(fn,	/* The function that implements the task. */
