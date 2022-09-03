@@ -7,6 +7,22 @@
 #include	"socketsX.h"					// x_ubuf FreeRTOS_Support LwIP mbedTLS
 #include	"printfx.h"
 
+#if (halUSE_AEP == 1)
+	#include "task_sitewhere.h"
+	#include "sitewhere-gpb.h"
+	#if	(configUSE_IDENT > 0)
+	#include "ident1.h"
+	#include "identity.h"
+	#endif
+#elif (halUSE_AEP == 2)
+	#include "task_thingsboard.h"
+	#include "tb_json.h"
+	#if	(configUSE_IDENT > 0)
+	#include "ident2.h"
+	#include "identity.h"
+	#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -77,6 +93,10 @@ void MutexUnlock(Mutex * mutex) ;
 
 struct MessageData ;
 void vMqttDefaultHandler(struct MessageData * psMD) ;
+
+void vAEP_ReRegister(void);
+void vAEP_Start(void);
+void vAEP_Report(void);
 
 #ifdef __cplusplus
 }
