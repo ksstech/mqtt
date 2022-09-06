@@ -21,7 +21,7 @@ set( priv_include_dirs )
 set( requires commands rtos-support socketsX )
 set( priv_requires common hal_esp32 printfx stringsX syslog )
 
-list( APPEND priv_requires sitewhere thingsboard )
+list( APPEND requires identity sitewhere thingsboard )
 
 idf_component_register(
 	SRCS ${srcs} 
