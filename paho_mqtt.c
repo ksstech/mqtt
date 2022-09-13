@@ -79,7 +79,7 @@ void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
 int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
 	int	iRV = xNetSetRecvTO(&psNetwork->sCtx, mSecTime);
 	if (iRV == erSUCCESS)
-		iRV = xNetRead(&psNetwork->sCtx, buffer, i16Len);
+		iRV = xNetRecv(&psNetwork->sCtx, buffer, i16Len);
 	// paho does not want to know about EAGAIN, filter out and return 0...
 	return (iRV == i16Len) ? iRV : (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
 }
@@ -88,7 +88,7 @@ int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTi
 	psNetwork->sCtx.tOut = mSecTime ;
 	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE) ;
 	if (iRV > erSUCCESS)
-		iRV = xNetWrite(&psNetwork->sCtx, buffer, i16Len);
+		iRV = xNetSend(&psNetwork->sCtx, buffer, i16Len);
 	return iRV ;
 }
 
@@ -111,11 +111,7 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
 	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT);
-#if 0
-	psNetwork->sCtx.d_write		= 1;
-	psNetwork->sCtx.d_read		= 1;
-//	psNetwork->sCtx.d_data		= 1;
-#endif
+//	psNetwork->sCtx.d = (netx_dbg_t) { .open=0, .host=0, .bl=0, .timing=0, .accept=0, .select=0, .wr=1, .rd=1, .data=1 };
 	return xNetOpen(&psNetwork->sCtx) ;
 }
 
