@@ -2,22 +2,23 @@
  * paho_mqtt.h
  */
 
-#pragma		once
+#pragma once
 
-#include	"socketsX.h"					// x_ubuf FreeRTOS_Support LwIP mbedTLS
-#include	"printfx.h"
+#include "main.h"
+#include "socketsX.h"					// x_ubuf FreeRTOS_Support LwIP mbedTLS
+#include"printfx.h"
 
-#if (halUSE_AEP == 1)
+#if (cmakeAEP == 1)
 	#include "task_sitewhere.h"
 	#include "sitewhere-gpb.h"
-	#if	(configUSE_IDENT > 0)
+	#if	(appUSE_IDENT > 0)
 	#include "ident1.h"
 	#include "identity.h"
 	#endif
-#elif (halUSE_AEP == 2)
+#elif (cmakeAEP == 2)
 	#include "task_thingsboard.h"
 	#include "tb_json.h"
-	#if	(configUSE_IDENT > 0)
+	#if	(appUSE_IDENT > 0)
 	#include "ident2.h"
 	#include "identity.h"
 	#endif
