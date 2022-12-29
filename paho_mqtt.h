@@ -4,25 +4,7 @@
 
 #pragma once
 
-#include "main.h"
 #include "socketsX.h"					// x_ubuf FreeRTOS_Support LwIP mbedTLS
-#include"printfx.h"
-
-#if (cmakeAEP == 1)
-	#include "task_sitewhere.h"
-	#include "sitewhere-gpb.h"
-	#if	(appUSE_IDENT > 0)
-	#include "ident1.h"
-	#include "identity.h"
-	#endif
-#elif (cmakeAEP == 2)
-	#include "task_thingsboard.h"
-	#include "tb_json.h"
-	#if	(appUSE_IDENT > 0)
-	#include "ident2.h"
-	#include "identity.h"
-	#endif
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,16 +16,6 @@ extern "C" {
 
 // ######################################## enumerations ###########################################
 
-enum {
-	stateMQTT_INVALID,
-	stateMQTT_RESOLVING,
-	stateMQTT_CONNECTING,
-	stateMQTT_SUBSCRIBING,
-	stateMQTT_RUNNING,
-	stateMQTT_STOP,
-	stateMQTT_DISCONNECT,
-	stateMQTT_CLOSE,
-} ;
 
 // ########################################## structures ###########################################
 
@@ -74,7 +46,6 @@ struct Network {
 
 // #################################### Public/global variables ####################################
 
-extern volatile uint8_t	xMqttState;
 
 // #################################### Public/global functions ####################################
 
@@ -94,10 +65,6 @@ void MutexUnlock(Mutex * mutex) ;
 
 struct MessageData ;
 void vMqttDefaultHandler(struct MessageData * psMD) ;
-
-void vAEP_ReRegister(void);
-void vAEP_Start(void);
-void vAEP_Report(void);
 
 #ifdef __cplusplus
 }

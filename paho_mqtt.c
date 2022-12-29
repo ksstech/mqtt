@@ -29,12 +29,13 @@ Add following line at end of MQTTClient.h, before #endif
 	int cycle(MQTTClient* c, Timer* timer) ;
 */
 
-#include	"hal_variables.h"
-#include	"MQTTClient.h"
-#include	"syslog.h"
-#include	"x_string_to_values.h"
-#include	"x_time.h"
-#include	"x_errors_events.h"
+#include "main.h"
+#include "MQTTClient.h"
+#include "syslog.h"
+#include "printfx.h"
+#include "x_string_to_values.h"
+#include "x_time.h"
+#include "x_errors_events.h"
 
 #define	debugFLAG					0x0000
 
@@ -45,7 +46,6 @@ Add following line at end of MQTTClient.h, before #endif
 
 // #################################### Public/global variables ####################################
 
-volatile u8_t xMqttState;
 char MQTTHostName[sizeof("000.000.000.000")];
 
 // #################################### Public/global functions ####################################
@@ -136,9 +136,9 @@ int ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
 
 void MutexInit(Mutex * mutex)	{ mutex->sem = xRtosSemaphoreInit() ; }
 
-void MutexLock(Mutex * mutex)	{ xRtosSemaphoreTake(&mutex->sem, portMAX_DELAY) ; }
+void MutexLock(Mutex * mutex)	{ xRtosSemaphoreTake(&mutex->sem, portMAX_DELAY); }
 
-void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem) ; }
+void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem); }
 
 void vMqttDefaultHandler(MessageData * psMD) {
 	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
