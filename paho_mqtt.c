@@ -47,6 +47,7 @@ Add following line at end of MQTTClient.h, before #endif
 // #################################### Public/global variables ####################################
 
 char MQTTHostName[sizeof("000.000.000.000")];
+volatile u8_t xMqttState;
 
 // #################################### Public/global functions ####################################
 
