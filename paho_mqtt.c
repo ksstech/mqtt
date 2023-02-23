@@ -112,8 +112,9 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
 	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT);
-//	psNetwork->sCtx.d = (netx_dbg_t) { .open=0, .host=0, .bl=0, .timing=0, .accept=0, .select=0, .wr=1, .rd=1, .data=1 };
-	return xNetOpen(&psNetwork->sCtx) ;
+	if (debugTRACK && ioB1GET(ioMQcon))
+		psNetwork->sCtx.d = (union netx_dbg_u) { .o=1, .h=1, .bl=1, .t=1, .a=1, .s=1, .w=1, .r=1, .d=1 };
+	return xNetOpen(&psNetwork->sCtx);
 }
 
 /*
