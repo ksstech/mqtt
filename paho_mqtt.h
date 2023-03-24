@@ -5,6 +5,7 @@
 #pragma once
 
 #include "socketsX.h"					// x_ubuf FreeRTOS_Support LwIP mbedTLS
+#include "statistics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,6 +48,14 @@ struct Network {
 // #################################### Public/global variables ####################################
 
 extern volatile u8_t xMqttState;
+
+#if (statsMQTT_RX > 0)
+	extern x32mma_t sMqttRX;
+#endif
+
+#if (statsMQTT_TX > 0)
+	extern x32mma_t sMqttTX;
+#endif
 
 // #################################### Public/global functions ####################################
 

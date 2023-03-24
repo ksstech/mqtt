@@ -31,6 +31,7 @@ Add following line at end of MQTTClient.h, before #endif
 
 #include "main.h"
 #include "MQTTClient.h"
+#include "statistics.h"
 #include "syslog.h"
 #include "printfx.h"
 #include "x_string_to_values.h"
@@ -49,6 +50,14 @@ Add following line at end of MQTTClient.h, before #endif
 char MQTTHostName[sizeof("000.000.000.000")];
 volatile u8_t xMqttState;
 
+#if (statsMQTT_RX > 0)
+	x32mma_t sMqttRX;
+#endif
+
+#if (statsMQTT_TX > 0)
+	x32mma_t sMqttTX;
+#endif
+
 // #################################### Public/global functions ####################################
 
 void TimerCountdownMS(Timer * timer, unsigned int mSecTime) {
@@ -63,7 +72,9 @@ int	TimerLeftMS(Timer * timer) {
 	return timer->xTicksToWait * portTICK_PERIOD_MS ;
 }
 
-char TimerIsExpired(Timer * timer) { return (xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE); }
+char TimerIsExpired(Timer * timer) {
+	return (xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) == pdTRUE);
+}
 
 void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
 
@@ -81,8 +92,12 @@ int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTim
 	int	iRV = xNetSetRecvTO(&psNetwork->sCtx, mSecTime);
 	if (iRV == erSUCCESS)
 		iRV = xNetRecv(&psNetwork->sCtx, buffer, i16Len);
+	if (iRV == i16Len) {
+		IF_EXEC_2(statsMQTT_RX > 0, x32MMAupdate, &sMqttRX, (x32_t)iRV);
+		return iRV;
+	}
 	// paho does not want to know about EAGAIN, filter out and return 0...
-	return (iRV == i16Len) ? iRV : (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV ;
+	return (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV;
 }
 
 int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
@@ -90,13 +105,16 @@ int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTi
 	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE) ;
 	if (iRV > erSUCCESS)
 		iRV = xNetSend(&psNetwork->sCtx, buffer, i16Len);
+	IF_EXEC_2(statsMQTT_TX > 0 && iRV == i16Len, x32MMAupdate, &sMqttTX, (x32_t)iRV);
 	return iRV ;
 }
 
 void MQTTNetworkInit(Network * psNetwork) {
-	psNetwork->sCtx.sd 		= -1 ;
-	psNetwork->mqttread		= network_read ;
-	psNetwork->mqttwrite	= network_write ;
+	psNetwork->sCtx.sd 		= -1;
+	psNetwork->mqttread		= network_read;
+	psNetwork->mqttwrite	= network_write;
+	IF_EXEC_2(statsMQTT_RX > 0, px32MMAinit, &sMqttRX, vfUXX);
+	IF_EXEC_2(statsMQTT_TX > 0, px32MMAinit, &sMqttTX, vfUXX);
 }
 
 int	MQTTNetworkConnect(Network * psNetwork) {
