@@ -29,14 +29,16 @@ Add following line at end of MQTTClient.h, before #endif
 	int cycle(MQTTClient* c, Timer* timer) ;
 */
 
-#include "main.h"
+#include "hal_variables.h"
+
 #include "MQTTClient.h"
+#include "options.h"
+#include "printfx.h"
 #include "statistics.h"
 #include "syslog.h"
-#include "printfx.h"
+#include "x_errors_events.h"
 #include "x_string_to_values.h"
 #include "x_time.h"
-#include "x_errors_events.h"
 
 #define	debugFLAG					0x0000
 
