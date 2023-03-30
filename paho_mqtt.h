@@ -50,11 +50,11 @@ struct Network {
 extern volatile u8_t xMqttState;
 
 #if (statsMQTT_RX > 0)
-	extern x32mma_t sMqttRX;
+	extern x32mma_t * psMqttRX;
 #endif
 
 #if (statsMQTT_TX > 0)
-	extern x32mma_t sMqttTX;
+	extern x32mma_t * psMqttTX;
 #endif
 
 // #################################### Public/global functions ####################################
