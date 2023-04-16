@@ -127,13 +127,18 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	if (nvsWifi.ipMQTT) {						// MQTT broker specified
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT);
 		psNetwork->sCtx.pHost = MQTTHostName;
-		SL_NOT("Using override MQTT broker IP=%s\r\n", MQTTHostName);
 	} else {									// default cloud MQTT host
 		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
-	psNetwork->sCtx.sa_in.sin_port	= nvsWifi.ipMQTTport ? htons(nvsWifi.ipMQTTport) : htons(IP_PORT_MQTT);
-	if (debugTRACK && ioB1GET(ioMQcon))
+	if (nvsWifi.ipMQTTport) {
+		psNetwork->sCtx.sa_in.sin_port = htons(nvsWifi.ipMQTTport);
+	} else {
+		psNetwork->sCtx.sa_in.sin_port = htons(IP_PORT_MQTT + (10000 * ioB2GET(ioMQTTport)));
+	}
+	if (debugTRACK && ioB1GET(ioMQcon)) {
+		SL_NOT("Using MQTT broker %s:%hu\r\n", psNetwork->sCtx.pHost, psNetwork->sCtx.sa_in.sin_port);
 		psNetwork->sCtx.d = (union netx_dbg_u) { .o=1, .h=1, .bl=1, .t=1, .a=1, .s=1, .w=1, .r=1, .d=1 };
+	}
 	return xNetOpen(&psNetwork->sCtx);
 }
 
