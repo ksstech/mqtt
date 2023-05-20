@@ -26,7 +26,7 @@ MQTTStartTask		->	MQTTRun	(unused)	->	cycle
 																								->	mqttwrite
 ===== Changes required =====
 Add following line at end of MQTTClient.h, before #endif
-	int cycle(MQTTClient* c, Timer* timer) ;
+	int cycle(MQTTClient* c, Timer* timer);
 */
 
 #include "hal_variables.h"
@@ -63,15 +63,15 @@ volatile u8_t xMqttState;
 // #################################### Public/global functions ####################################
 
 void TimerCountdownMS(Timer * timer, unsigned int mSecTime) {
-	timer->xTicksToWait = pdMS_TO_TICKS(mSecTime) ;		// milliseconds to ticks
-	vTaskSetTimeOutState(&timer->xTimeOut) ; 			// Record the time function entered.
+	timer->xTicksToWait = pdMS_TO_TICKS(mSecTime);		// milliseconds to ticks
+	vTaskSetTimeOutState(&timer->xTimeOut); 			// Record the time function entered.
 }
 
 void TimerCountdown(Timer * timer, unsigned int SecTime) { TimerCountdownMS(timer, SecTime * 1000); }
 
 int	TimerLeftMS(Timer * timer) {
-	xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait) ;
-	return timer->xTicksToWait * portTICK_PERIOD_MS ;
+	xTaskCheckForTimeOut(&timer->xTimeOut, &timer->xTicksToWait);
+	return timer->xTicksToWait * portTICK_PERIOD_MS;
 }
 
 char TimerIsExpired(Timer * timer) {
@@ -91,6 +91,7 @@ void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
  * 			Error (<0)
  */
 int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
+	IF_EXEC(debugTRACK, psNetwork->sCtx.d.d = psNetwork->sCtx.d.r = ioB1GET(ioMQcon));
 	int	iRV = xNetSetRecvTO(&psNetwork->sCtx, mSecTime);
 	if (iRV == erSUCCESS)
 		iRV = xNetRecv(&psNetwork->sCtx, buffer, i16Len);
@@ -103,12 +104,13 @@ int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTim
 }
 
 int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
-	psNetwork->sCtx.tOut = mSecTime ;
-	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE) ;
+	IF_EXEC(debugTRACK, psNetwork->sCtx.d.d = psNetwork->sCtx.d.w = ioB1GET(ioMQcon));
+	psNetwork->sCtx.tOut = mSecTime;
+	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE);
 	if (iRV > erSUCCESS)
 		iRV = xNetSend(&psNetwork->sCtx, buffer, i16Len);
 	IF_EXEC_2(statsMQTT_TX > 0 && iRV == i16Len, x32MMAupdate, psMqttTX, (x32_t)iRV);
-	return iRV ;
+	return iRV;
 }
 
 void MQTTNetworkInit(Network * psNetwork) {
@@ -120,7 +122,7 @@ void MQTTNetworkInit(Network * psNetwork) {
 }
 
 int	MQTTNetworkConnect(Network * psNetwork) {
-	memset(&psNetwork->sCtx, 0 , sizeof(netx_t)) ;
+	memset(&psNetwork->sCtx, 0 , sizeof(netx_t));
 	psNetwork->sCtx.type = SOCK_STREAM;
 	psNetwork->sCtx.sa_in.sin_family= AF_INET;
 	psNetwork->sCtx.flags = SO_REUSEADDR;
@@ -171,5 +173,5 @@ void vMqttDefaultHandler(MessageData * psMD) {
 	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
 		psMD->message->qos, psMD->message->retained,psMD->message->dup, psMD->message->id,
 		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
-		psMD->message->payloadlen, psMD->message->payload) ;
+		psMD->message->payloadlen, psMD->message->payload);
 }
