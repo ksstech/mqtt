@@ -163,7 +163,7 @@ int ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
 	return rc;
 }
 
-void MutexInit(Mutex * mutex)	{ vRtosSemaphoreInit(&mutex->sem); }
+void MutexInit(Mutex * mutex)	{ xRtosSemaphoreInit(&mutex->sem); }
 
 void MutexLock(Mutex * mutex)	{ xRtosSemaphoreTake(&mutex->sem, portMAX_DELAY); }
 
