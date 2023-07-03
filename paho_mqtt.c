@@ -40,7 +40,7 @@ Add following line at end of MQTTClient.h, before #endif
 #include "x_string_to_values.h"
 #include "x_time.h"
 
-#define	debugFLAG					0x0000
+#define	debugFLAG					0xF000
 
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)
 #define	debugTRACK					(debugFLAG_GLOBAL & debugFLAG & 0x2000)
