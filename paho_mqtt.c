@@ -91,24 +91,26 @@ void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
  * 			Error (<0)
  */
 int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
-	IF_EXEC(debugTRACK, psNetwork->sCtx.d.d = psNetwork->sCtx.d.r = ioB1GET(ioMQcon));
-	int	iRV = xNetSetRecvTO(&psNetwork->sCtx, mSecTime);
+	netx_t * psCtx = &psNetwork->sCtx;
+	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = psCtx->d.t = ioB1GET(ioMQcon));
+	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
 	if (iRV == erSUCCESS)
-		iRV = xNetRecv(&psNetwork->sCtx, buffer, i16Len);
+		iRV = xNetRecv(psCtx, buffer, i16Len);
 	if (iRV == i16Len) {
 		IF_EXEC_2(statsMQTT_RX > 0, x32MMAupdate, psMqttRX, (x32_t)iRV);
 		return iRV;
 	}
 	// paho does not want to know about EAGAIN, filter out and return 0...
-	return (iRV < 0 && psNetwork->sCtx.error == EAGAIN) ? 0 : iRV;
+	return (iRV < 0 && psCtx->error == EAGAIN) ? 0 : iRV;
 }
 
 int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
-	IF_EXEC(debugTRACK, psNetwork->sCtx.d.d = psNetwork->sCtx.d.w = ioB1GET(ioMQcon));
-	psNetwork->sCtx.tOut = mSecTime;
-	int iRV = xNetSelect(&psNetwork->sCtx, selFLAG_WRITE);
+	netx_t * psCtx = &psNetwork->sCtx;
+	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = psCtx->d.t = ioB1GET(ioMQcon));
+	psCtx->tOut = mSecTime;
+	int iRV = xNetSelect(psCtx, selFLAG_WRITE);
 	if (iRV > erSUCCESS)
-		iRV = xNetSend(&psNetwork->sCtx, buffer, i16Len);
+		iRV = xNetSend(psCtx, buffer, i16Len);
 	IF_EXEC_2(statsMQTT_TX > 0 && iRV == i16Len, x32MMAupdate, psMqttTX, (x32_t)iRV);
 	return iRV;
 }
@@ -122,26 +124,27 @@ void MQTTNetworkInit(Network * psNetwork) {
 }
 
 int	MQTTNetworkConnect(Network * psNetwork) {
-	memset(&psNetwork->sCtx, 0 , sizeof(netx_t));
-	psNetwork->sCtx.type = SOCK_STREAM;
-	psNetwork->sCtx.sa_in.sin_family= AF_INET;
-	psNetwork->sCtx.flags = SO_REUSEADDR;
+	netx_t * psCtx = &psNetwork->sCtx;
+	memset(psCtx, 0 , sizeof(netx_t));
+	psCtx->type = SOCK_STREAM;
+	psCtx->sa_in.sin_family= AF_INET;
+	psCtx->flags = SO_REUSEADDR;
 	if (nvsWifi.ipMQTT) {						// MQTT broker specified
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT);
-		psNetwork->sCtx.pHost = MQTTHostName;
+		psCtx->pHost = MQTTHostName;
 	} else {									// default cloud MQTT host
-		psNetwork->sCtx.pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
+		psCtx->pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
 	if (nvsWifi.ipMQTTport) {
-		psNetwork->sCtx.sa_in.sin_port = htons(nvsWifi.ipMQTTport);
+		psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport);
 	} else {
-		psNetwork->sCtx.sa_in.sin_port = htons(IP_PORT_MQTT + (10000 * ioB2GET(ioMQTTport)));
+		psCtx->sa_in.sin_port = htons(IP_PORT_MQTT + (10000 * ioB2GET(ioMQTTport)));
 	}
 	if (debugTRACK && ioB1GET(ioMQcon)) {
-		SL_NOT("Using MQTT broker %s:%hu\r\n", psNetwork->sCtx.pHost, psNetwork->sCtx.sa_in.sin_port);
-		psNetwork->sCtx.d = (union netx_dbg_u) { .o=1, .h=1, .bl=1, .t=1, .a=1, .s=1, .w=1, .r=1, .d=1 };
+		SL_NOT("Using MQTT broker %s:%hu\r\n", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
+		psCtx->d = (union netx_dbg_u) { .o=1, .h=1, .bl=1, .t=1, .a=1, .s=1, .w=1, .r=1, .d=1 };
 	}
-	return xNetOpen(&psNetwork->sCtx);
+	return xNetOpen(psCtx);
 }
 
 /*
