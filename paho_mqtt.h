@@ -20,29 +20,29 @@ extern "C" {
 
 // ########################################## structures ###########################################
 
-typedef struct { SemaphoreHandle_t sem ; } Mutex ;
+typedef struct { SemaphoreHandle_t sem; } Mutex;
 
-typedef	struct { QueueHandle_t	queue; } Queue ;
+typedef	struct { QueueHandle_t	queue; } Queue;
 
-typedef struct { TaskHandle_t	task; } Thread ;
+typedef struct { TaskHandle_t	task; } Thread;
 
 typedef struct sQueuePublish {
-	char *	pTopic ;
-    void *	pvPayload ;
+	char *	pTopic;
+    void *	pvPayload;
     size_t	xLoadlen;
-} sQueuePublish ;
+} sQueuePublish;
 
 typedef struct Timer {
-	TickType_t	xTicksToWait ;
-	TimeOut_t	xTimeOut ;
-} Timer ;
+	TickType_t	xTicksToWait;
+	TimeOut_t	xTimeOut;
+} Timer;
 
-typedef struct Network Network ;
+typedef struct Network Network;
 struct Network {
-	int (*mqttread) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime) ;
-	int (*mqttwrite) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime) ;
-	netx_t		sCtx ;
-	sock_sec_t	sSec ;
+	int (*mqttread) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime);
+	int (*mqttwrite) (Network * psNetwork, uint8_t *, int16_t, uint32_t mSecTime);
+	netx_t		sCtx;
+	sock_sec_t	sSec;
 };
 
 // #################################### Public/global variables ####################################
@@ -65,16 +65,16 @@ int	TimerLeftMS(Timer * timer);
 char TimerIsExpired(Timer * timer);
 void TimerInit(Timer * timer);
 
-void MQTTNetworkInit(Network * psNetwork) ;
-int	MQTTNetworkConnect(Network * psNetwork) ;
-int ThreadStart(Thread * thread, void (*fn) (void *), void * arg) ;
+void MQTTNetworkInit(Network * psNetwork);
+int	MQTTNetworkConnect(Network * psNetwork);
+int ThreadStart(Thread * thread, void (*fn) (void *), void * arg);
 
-void MutexInit(Mutex * mutex) ;
-void MutexLock(Mutex * mutex) ;
-void MutexUnlock(Mutex * mutex) ;
+void MutexInit(Mutex * mutex);
+void MutexLock(Mutex * mutex);
+void MutexUnlock(Mutex * mutex);
 
-struct MessageData ;
-void vMqttDefaultHandler(struct MessageData * psMD) ;
+struct MessageData;
+void vMqttDefaultHandler(struct MessageData * psMD);
 
 #ifdef __cplusplus
 }
