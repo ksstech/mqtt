@@ -29,8 +29,8 @@ Add following line at end of MQTTClient.h, before #endif
 	int cycle(MQTTClient* c, Timer* timer);
 */
 
+#include "certificates.h"
 #include "hal_variables.h"
-
 #include "MQTTClient.h"
 #include "options.h"
 #include "printfx.h"

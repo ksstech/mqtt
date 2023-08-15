@@ -18,12 +18,8 @@ set( srcs "paho_mqtt.c"
 
 set( include_dirs "." "${PPaho}/MQTTClient-C/src" "${PPaho}/MQTTPacket/src" )
 set( priv_include_dirs )
-set( requires 
-	irmacos socketsX 
-)
-set( priv_requires 
-	common hal_esp32 main printfx stringsX syslog 
-)
+set( requires irmacos socketsX )
+set( priv_requires confidential common hal_esp32 main printfx stringsX syslog )
 
 idf_component_register(
 	SRCS ${srcs} 
