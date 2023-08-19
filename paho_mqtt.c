@@ -90,7 +90,7 @@ void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
  * 			Timeout (0)
  * 			Error (<0)
  */
-int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
+int	network_read(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = psCtx->d.t = ioB1GET(ioMQcon));
 	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
@@ -104,7 +104,7 @@ int	network_read(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTim
 	return (iRV < 0 && psCtx->error == EAGAIN) ? 0 : iRV;
 }
 
-int	network_write(Network * psNetwork, u8_t * buffer, s16_t i16Len, u32_t mSecTime) {
+int	network_write(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = psCtx->d.t = ioB1GET(ioMQcon));
 	psCtx->tOut = mSecTime;
