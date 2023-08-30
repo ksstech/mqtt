@@ -111,7 +111,7 @@ int	network_write(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTi
 	int iRV = xNetSelect(psCtx, selFLAG_WRITE);
 	if (iRV > erSUCCESS)
 		iRV = xNetSend(psCtx, buffer, i16Len);
-	IF_EXEC_2(statsMQTT_TX > 0 && iRV == i16Len, x32MMAupdate, psMqttTX, (x32_t)iRV);
+	IF_EXEC_2(statsMQTT_TX > 0 && (iRV == i16Len), x32MMAupdate, psMqttTX, (x32_t)iRV);
 	return iRV;
 }
 
