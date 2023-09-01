@@ -29,8 +29,9 @@ Add following line at end of MQTTClient.h, before #endif
 	int cycle(MQTTClient* c, Timer* timer);
 */
 
-#include "certificates.h"
 #include "hal_variables.h"
+
+#include "certificates.h"
 #include "MQTTClient.h"
 #include "options.h"
 #include "printfx.h"
@@ -52,13 +53,7 @@ Add following line at end of MQTTClient.h, before #endif
 char MQTTHostName[sizeof("000.000.000.000")];
 volatile u8_t xMqttState;
 
-#if (statsMQTT_RX > 0)
-	x32mma_t * psMqttRX;
-#endif
-
-#if (statsMQTT_TX > 0)
-	x32mma_t * psMqttTX;
-#endif
+x32mma_t * psMqttRX, * psMqttTX;
 
 // #################################### Public/global functions ####################################
 
