@@ -13,18 +13,18 @@ set( srcs "paho_mqtt.c"
 		"${PPaho}/MQTTPacket/src/MQTTSubscribeClient.c"
 		"${PPaho}/MQTTPacket/src/MQTTSubscribeServer.c"
 		"${PPaho}/MQTTPacket/src/MQTTUnsubscribeClient.c"
-		"${PPaho}/MQTTPacket/src/MQTTUnsubscribeServer.c" 
+		"${PPaho}/MQTTPacket/src/MQTTUnsubscribeServer.c"
 )
 
 set( include_dirs "." "${PPaho}/MQTTClient-C/src" "${PPaho}/MQTTPacket/src" )
 set( priv_include_dirs )
-set( requires irmacos socketsX )
-set( priv_requires confidential common hal_esp32 main printfx stringsX syslog )
+set( requires "irmacos socketsX confidential stringsX" )
+set( priv_requires "printfx syslog" )
 
 idf_component_register(
-	SRCS ${srcs} 
-	INCLUDE_DIRS ${include_dirs} 
-	PRIV_INCLUDE_DIRS ${priv_include_dirs} 
-	REQUIRES ${requires} 
+	SRCS ${srcs}
+	INCLUDE_DIRS ${include_dirs}
+	PRIV_INCLUDE_DIRS ${priv_include_dirs}
+	REQUIRES ${requires}
 	PRIV_REQUIRES ${priv_requires}
 )
