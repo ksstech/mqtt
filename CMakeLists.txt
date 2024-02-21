@@ -18,8 +18,8 @@ set( srcs "paho_mqtt.c"
 
 set( include_dirs "." "${PPaho}/MQTTClient-C/src" "${PPaho}/MQTTPacket/src" )
 set( priv_include_dirs )
-set( requires "irmacos socketsX confidential stringsX" )
-set( priv_requires "printfx syslog" )
+set( requires "confidential main" )
+set( priv_requires )
 
 idf_component_register(
 	SRCS ${srcs}
