@@ -29,7 +29,7 @@ Add following line at end of MQTTClient.h, before #endif
 	int cycle(MQTTClient* c, Timer* timer);
 */
 
-#include "hal_config.h"
+#include "hal_platform.h"
 
 #include "hal_network.h"
 #include "hal_options.h"
