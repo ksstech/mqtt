@@ -1,6 +1,4 @@
-/*
- * paho_mqtt.h
- */
+// paho_mqtt.h
 
 #pragma once
 
