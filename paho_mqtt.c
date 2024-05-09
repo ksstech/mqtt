@@ -143,9 +143,8 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	return xNetOpen(psCtx);
 }
 
-/*
- * ThreadStart()
- * \brief		Unused, just for compatibility to minimise changes to standard library
+/**
+ * @brief		Unused, just for compatibility to minimise changes to standard library
  */
 int ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
 	int rc = 0;
