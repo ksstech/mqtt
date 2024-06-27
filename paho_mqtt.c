@@ -1,6 +1,4 @@
-/*
- * paho_mqtt.c
- */
+// paho_mqtt.c
 
 /*
 MQTT basic call chart:
@@ -10,7 +8,7 @@ MQTTUnsubscribe		->	waitfor
 MQTTSubcribe		->	waitfor
 MQTTPublish			->	waitfor
 MQTTConnect			->	waitfor
-						waitfor				->	cycle											/>	decodePacket		-> mqttread
+						waitfor				->	cycle											->	decodePacket		-> mqttread
 						vMqttTaskRx			->	cycle				->	readPacket				->	mqttread
 																	|
 MQTTStartTask		->	MQTTRun	(unused)	->	cycle
@@ -54,7 +52,7 @@ Add following line at end of MQTTClient.h, before #endif
 char MQTTHostName[sizeof("000.000.000.000")];
 volatile u8_t xMqttState;
 
-x32mma_t * psMqttRX, * psMqttTX;
+x32mma_t *psMqttRX, *psMqttTX;
 
 // #################################### Public/global functions ####################################
 
