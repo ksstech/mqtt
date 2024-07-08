@@ -1,6 +1,6 @@
 # PAHO MQTT
 
-set( PPaho "${PRepo}/paho.mqtt.embedded-c" )
+set( PPaho "./paho.mqtt.embedded-c" )
 
 set( srcs "paho_mqtt.c"
 		"${PPaho}/MQTTClient-C/src/MQTTClient.c"
