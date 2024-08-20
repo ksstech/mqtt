@@ -75,16 +75,13 @@ char TimerIsExpired(Timer * timer) {
 void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
 
 /**
- * network_read() -
  * @param	psNetwork
  * @param	buffer
  * @param	i16Len
  * @param	mSecTime
- * @return	By default the number of bytes read (>0)
- * 			Timeout (0)
- * 			Error (<0)
+ * @return	Number of bytes read (>0), Timeout (0) or Error (<0)
  */
-int	network_read(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
+int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = psCtx->d.t = ioB1GET(ioMQcon));
 	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
@@ -98,7 +95,7 @@ int	network_read(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTim
 	return (iRV < 0 && psCtx->error == EAGAIN) ? 0 : iRV;
 }
 
-int	network_write(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
+int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = psCtx->d.t = ioB1GET(ioMQcon));
 	psCtx->tOut = mSecTime;
@@ -111,8 +108,8 @@ int	network_write(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTi
 
 void MQTTNetworkInit(Network * psNetwork) {
 	psNetwork->sCtx.sd = -1;
-	psNetwork->mqttread = network_read;
-	psNetwork->mqttwrite = network_write;
+	psNetwork->mqttread = xMqttRead;
+	psNetwork->mqttwrite = xMqttWrite;
 	IF_EXEC_1(statsMQTT_RX > 0, psMqttRX = px32MMAinit, vfUXX);
 	IF_EXEC_1(statsMQTT_TX > 0, psMqttTX = px32MMAinit, vfUXX);
 }
@@ -129,11 +126,7 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	} else {									// default cloud MQTT host
 		psCtx->pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
-	if (nvsWifi.ipMQTTport) {
-		psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport);
-	} else {
-		psCtx->sa_in.sin_port = htons(IP_PORT_MQTT + (10000 * ioB2GET(ioMQTTport)));
-	}
+	psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport ? nvsWifi.ipMQTTport : IP_PORT_MQTT + (10000 * ioB2GET(ioMQTTport)));
 	if (debugTRACK && ioB1GET(ioMQcon)) {
 		SL_NOT("Using MQTT broker %s:%hu\r\n", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
 		psCtx->d = (union netx_dbg_u) { .o=1, .h=1, .bl=1, .t=1, .a=1, .s=1, .w=1, .r=1, .d=1 };
