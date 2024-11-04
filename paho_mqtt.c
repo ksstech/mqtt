@@ -36,9 +36,9 @@ Add following line at end of MQTTClient.h, before #endif
 #include "printfx.h"
 #include "statistics.h"
 #include "syslog.h"
-#include "x_errors_events.h"
-#include "x_string_to_values.h"
-#include "x_time.h"
+#include "errors_events.h"
+#include "string_to_values.h"
+#include "timeX.h"
 
 #define	debugFLAG					0xF000
 
