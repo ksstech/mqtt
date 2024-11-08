@@ -83,7 +83,7 @@ void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
  */
 int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
-	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = psCtx->d.t = ioB1GET(ioMQcon));
+//	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = psCtx->d.t = ioB1GET(ioMQcon));
 	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
 	if (iRV == erSUCCESS) iRV = xNetRecv(psCtx, buffer, i16Len);
 	if (iRV == i16Len) {
@@ -96,7 +96,7 @@ int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) 
 
 int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
-	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = psCtx->d.t = ioB1GET(ioMQcon));
+//	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = psCtx->d.t = ioB1GET(ioMQcon));
 	psCtx->tOut = mSecTime;
 	int iRV = xNetSelect(psCtx, selFLAG_WRITE);
 	if (iRV > erSUCCESS) iRV = xNetSend(psCtx, buffer, i16Len);
