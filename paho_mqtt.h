@@ -24,11 +24,11 @@ typedef	struct { QueueHandle_t	queue; } Queue;
 
 typedef struct { TaskHandle_t	task; } Thread;
 
-typedef struct sQueuePublish {
+typedef struct queue_publish_t {
 	char *	pTopic;
     void *	pvPayload;
     size_t	xLoadlen;
-} sQueuePublish;
+} queue_publish_t;
 
 typedef struct Timer {
 	TickType_t	xTicksToWait;
