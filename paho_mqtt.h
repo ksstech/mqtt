@@ -57,6 +57,9 @@ extern volatile u8_t xMqttState;
 
 // #################################### Public/global functions ####################################
 
+struct MQTTClient;
+int cycle(struct MQTTClient * c, Timer * t);		// helper function
+
 void TimerCountdownMS(Timer * timer, unsigned int mSecTime);
 void TimerCountdown(Timer * timer, unsigned int SecTime);
 int	TimerLeftMS(Timer * timer);
