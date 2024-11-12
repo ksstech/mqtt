@@ -47,6 +47,13 @@ Add following line at end of MQTTClient.h, before #endif
 #define	debugPARAM					(debugFLAG_GLOBAL & debugFLAG & 0x4000)
 #define	debugRESULT					(debugFLAG_GLOBAL & debugFLAG & 0x8000)
 
+// #################################### Public/global constants ####################################
+
+const char * ccpPktType[] = {
+	"BUffer", "Error", "TimeOut", "Connect", "CONack", "PUBLISH", "PUBack", "PUBREC", "PUBREL",
+	"PUBCOMP", "SUBSCRIBE", "SUBack", "UNSUBSCRIBE", "UNSUBack", "PINGREQ", "PINGRESP", "DISCONNECT"
+};
+
 // #################################### Public/global variables ####################################
 
 char MQTTHostName[sizeof("000.000.000.000")];
