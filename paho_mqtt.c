@@ -82,6 +82,30 @@ char TimerIsExpired(Timer * timer) {
 void TimerInit(Timer * timer) { memset(timer, 0, sizeof(Timer)); }
 
 /**
+ * @brief		Unused, just for compatibility to minimise changes to standard library
+ */
+int ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
+	int rc = 0;
+	u16_t usTaskStackSize = (configMINIMAL_STACK_SIZE * 5);
+	UBaseType_t uxTaskPriority = uxTaskPriorityGet(NULL); /* set the priority as the same as the calling task*/
+
+	rc = xTaskCreate(fn,	/* The function that implements the task. */
+		"MQTTTask",			/* Just a text name for the task to aid debugging. */
+		usTaskStackSize,	/* The stack size is defined in FreeRTOSIPConfig.h. */
+		arg,				/* The task parameter, not used in this case. */
+		uxTaskPriority,		/* The priority assigned to the task is defined in FreeRTOSConfig.h. */
+		&thread->task);		/* The task handle is not used. */
+
+	return rc;
+}
+
+void MutexInit(Mutex * mutex)	{ xRtosSemaphoreInit(&mutex->sem); }
+
+void MutexLock(Mutex * mutex)	{ xRtosSemaphoreTake(&mutex->sem, portMAX_DELAY); }
+
+void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem); }
+
+/**
  * @param	psNetwork
  * @param	buffer
  * @param	i16Len
@@ -135,30 +159,6 @@ int	MQTTNetworkConnect(Network * psNetwork) {
 	if (debugTRACK && ioB1GET(ioMQcon)) SL_NOT("Using MQTT broker %s:%hu", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
 	return xNetOpen(psCtx);
 }
-
-/**
- * @brief		Unused, just for compatibility to minimise changes to standard library
- */
-int ThreadStart(Thread * thread, void (*fn)(void *), void * arg) {
-	int rc = 0;
-	u16_t usTaskStackSize = (configMINIMAL_STACK_SIZE * 5);
-	UBaseType_t uxTaskPriority = uxTaskPriorityGet(NULL); /* set the priority as the same as the calling task*/
-
-	rc = xTaskCreate(fn,	/* The function that implements the task. */
-		"MQTTTask",			/* Just a text name for the task to aid debugging. */
-		usTaskStackSize,	/* The stack size is defined in FreeRTOSIPConfig.h. */
-		arg,				/* The task parameter, not used in this case. */
-		uxTaskPriority,		/* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-		&thread->task);		/* The task handle is not used. */
-
-	return rc;
-}
-
-void MutexInit(Mutex * mutex)	{ xRtosSemaphoreInit(&mutex->sem); }
-
-void MutexLock(Mutex * mutex)	{ xRtosSemaphoreTake(&mutex->sem, portMAX_DELAY); }
-
-void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem); }
 
 void vMqttDefaultHandler(MessageData * psMD) {
 	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
