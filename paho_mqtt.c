@@ -135,7 +135,7 @@ int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime)
 	return iRV;
 }
 
-void MQTTNetworkInit(Network * psNetwork) {
+void vMqttNetworkInit(Network * psNetwork) {
 	psNetwork->sCtx.sd = -1;
 	psNetwork->mqttread = xMqttRead;
 	psNetwork->mqttwrite = xMqttWrite;
@@ -143,7 +143,7 @@ void MQTTNetworkInit(Network * psNetwork) {
 	IF_EXEC_1(statsMQTT_TX > 0, psMqttTX = px32MMAinit, vfUXX);
 }
 
-int	MQTTNetworkConnect(Network * psNetwork) {
+int	xMqttNetworkConnect(Network * psNetwork) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	memset(psCtx, 0 , sizeof(netx_t));
 	psCtx->type = SOCK_STREAM;

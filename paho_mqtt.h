@@ -68,8 +68,6 @@ int	TimerLeftMS(Timer * timer);
 char TimerIsExpired(Timer * timer);
 void TimerInit(Timer * timer);
 
-void MQTTNetworkInit(Network * psNetwork);
-int	MQTTNetworkConnect(Network * psNetwork);
 int ThreadStart(Thread * thread, void (*fn) (void *), void * arg);
 
 void MutexInit(Mutex * mutex);
@@ -78,6 +76,8 @@ void MutexUnlock(Mutex * mutex);
 
 struct MessageData;
 void vMqttDefaultHandler(struct MessageData * psMD);
+void vMqttNetworkInit(Network * psNetwork);
+int	xMqttNetworkConnect(Network * psNetwork);
 
 #ifdef __cplusplus
 }
