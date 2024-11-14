@@ -60,7 +60,13 @@ extern volatile u8_t xMqttState;
 // #################################### Public/global functions ####################################
 
 struct MQTTClient;
-int cycle(struct MQTTClient * c, Timer * t);		// helper function
+/**
+ * @brief
+ * @param[in]	c - pointer to MQTT client structure
+ * @param[in]	t - pointer to timer structure
+ * @return		-2/BUFFER_OVERFLOW  -1/FAILURE  0/TimeOut  1->14/packet_type
+ */
+int cycle(struct MQTTClient * c, Timer * t);
 
 void TimerCountdownMS(Timer * timer, unsigned int mSecTime);
 void TimerCountdown(Timer * timer, unsigned int SecTime);
