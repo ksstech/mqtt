@@ -29,6 +29,7 @@ Add following line at end of MQTTClient.h, before #endif
 
 #include "hal_platform.h"
 
+#if (buildAEP > 0)
 #include "hal_network.h"
 #include "hal_options.h"
 #include "certificates.h"
@@ -166,3 +167,4 @@ void vMqttDefaultHandler(MessageData * psMD) {
 		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
 		psMD->message->payloadlen, psMD->message->payload);
 }
+#endif
