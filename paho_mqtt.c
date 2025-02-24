@@ -148,8 +148,8 @@ int	xMqttNetworkConnect(Network * psNetwork) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	memset(psCtx, 0 , sizeof(netx_t));
 	psCtx->type = SOCK_STREAM;
-	psCtx->sa_in.sin_family= AF_INET;
 	psCtx->flags = SO_REUSEADDR;
+	psCtx->sa_in.sin_family= AF_INET;
 	if (nvsWifi.ipMQTT) {						// MQTT broker specified
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT);
 		psCtx->pHost = MQTTHostName;
