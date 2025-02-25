@@ -151,6 +151,8 @@ void vMqttNetworkInit(Network * psNetwork) {
 	psNetwork->sCtx.sd = -1;
 	psNetwork->mqttread = xMqttRead;
 	psNetwork->mqttwrite = xMqttWrite;
+	// Add flag to enable auto reconnect...
+	psNetwork->sCtx.ReConnect = 3;
 	IF_EXEC_1(statsMQTT_RX > 0, psMqttRX = px32MMAinit, vfUXX);
 	IF_EXEC_1(statsMQTT_TX > 0, psMqttTX = px32MMAinit, vfUXX);
 }
