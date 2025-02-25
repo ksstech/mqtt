@@ -107,10 +107,11 @@ void MutexLock(Mutex * mutex)	{ xRtosSemaphoreTake(&mutex->sem, portMAX_DELAY); 
 void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem); }
 
 /**
- * @param	psNetwork
- * @param	buffer
- * @param	i16Len
- * @param	mSecTime
+ * @brief		read data from the MQTT host
+ * @param[in]	psNetwork
+ * @param[in]	buffer
+ * @param[in]	i16Len
+ * @param[in]	mSecTime
  * @return	Number of bytes read (>0), Timeout (0) or Error (<0)
  */
 int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
@@ -126,6 +127,14 @@ int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) 
 	return (iRV < 0 && psCtx->error == EAGAIN) ? 0 : iRV;
 }
 
+/**
+ * @brief		write data to the MQTT host
+ * @param[in]	psNetwork
+ * @param[in]	buffer
+ * @param[in]	i16Len
+ * @param[in]	mSecTime
+ * @return	Number of bytes written (>0), Timeout (0) or Error (<0)
+ */
 int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = ioB2GET(dbMQTTrw) & 2 ? 1 : 0);
