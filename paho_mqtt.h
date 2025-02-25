@@ -83,7 +83,8 @@ void MutexUnlock(Mutex * mutex);
 struct MessageData;
 void vMqttDefaultHandler(struct MessageData * psMD);
 void vMqttNetworkInit(Network * psNetwork);
-int	xMqttNetworkConnect(Network * psNetwork);
+
+int	xMqttNetworkConnect(netx_t * psCtx);
 
 #ifdef __cplusplus
 }

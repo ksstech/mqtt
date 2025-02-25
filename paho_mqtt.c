@@ -155,8 +155,7 @@ void vMqttNetworkInit(Network * psNetwork) {
 	IF_EXEC_1(statsMQTT_TX > 0, psMqttTX = px32MMAinit, vfUXX);
 }
 
-int	xMqttNetworkConnect(Network * psNetwork) {
-	netx_t * psCtx = &psNetwork->sCtx;
+int xMqttNetworkConnect(netx_t * psCtx) {
 	memset(psCtx, 0 , sizeof(netx_t));
 	psCtx->type = SOCK_STREAM;
 	psCtx->flags = SO_REUSEADDR;
