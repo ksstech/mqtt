@@ -1,4 +1,4 @@
-// paho_mqtt.c
+// paho_mqtt.c - Copyright (c) 2017-25 Andre M. Maree / KSS Technologies (Pty) Ltd.
 
 /*
 MQTT basic call chart:
