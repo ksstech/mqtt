@@ -118,7 +118,8 @@ int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) 
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = ioB2GET(dbMQTTrw) & 1);
 	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
-	if (iRV == erSUCCESS) iRV = xNetRecv(psCtx, buffer, i16Len);
+	if (iRV == erSUCCESS)
+		iRV = xNetRecv(psCtx, buffer, i16Len);
 	if (iRV == i16Len) {
 		IF_EXEC_2(statsMQTT_RX > 0, x32MMAupdate, psMqttRX, (x32_t)iRV);
 		return iRV;
@@ -140,7 +141,8 @@ int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime)
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = ioB2GET(dbMQTTrw) & 2 ? 1 : 0);
 	psCtx->tOut = mSecTime;
 	int iRV = xNetSelect(psCtx, selFLAG_WRITE);
-	if (iRV > erSUCCESS) iRV = xNetSend(psCtx, buffer, i16Len);
+	if (iRV > erSUCCESS)
+		iRV = xNetSend(psCtx, buffer, i16Len);
 	IF_EXEC_2(statsMQTT_TX > 0 && (iRV == i16Len), x32MMAupdate, psMqttTX, (x32_t)iRV);
 	return iRV;
 }
@@ -166,7 +168,8 @@ int	xMqttNetworkConnect(Network * psNetwork) {
 		psCtx->pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
 	psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport ? nvsWifi.ipMQTTport : IP_PORT_MQTT + (10000 * ioB2GET(ioMQTTport)));
-	if (debugTRACK && ioB1GET(ioMQcon)) SL_NOT("Using MQTT broker %s:%hu", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
+	if (debugTRACK && ioB1GET(ioMQcon))
+		SL_NOT("Using MQTT broker %s:%hu", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
 	return xNetOpen(psCtx);
 }
 
@@ -176,4 +179,5 @@ void vMqttDefaultHandler(MessageData * psMD) {
 		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
 		psMD->message->payloadlen, psMD->message->payload);
 }
+
 #endif
