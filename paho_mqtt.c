@@ -162,13 +162,14 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 	psCtx->type = SOCK_STREAM;
 	psCtx->flags = SO_REUSEADDR;
 	psCtx->sa_in.sin_family= AF_INET;
-	if (nvsWifi.ipMQTT) {						// MQTT broker specified
+	if (nvsWifi.ipMQTT) {								// MQTT broker specified
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT);
 		psCtx->pHost = MQTTHostName;
-	} else {									// default cloud MQTT host
+	} else {											// default cloud MQTT host
 		psCtx->pHost = HostInfo[ioB2GET(ioHostMQTT)].pName;
 	}
 	psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport ? nvsWifi.ipMQTTport : IP_PORT_MQTT + (10000 * ioB2GET(ioMQTTport)));
+	psCtx->ReConnect = 3;						// Add flag to enable auto reconnect...
 	if (debugTRACK && ioB1GET(ioMQcon))
 		SL_NOT("Using MQTT broker %s:%hu", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
 	return xNetOpen(psCtx);
