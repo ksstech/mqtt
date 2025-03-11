@@ -167,7 +167,7 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 		psCtx->pHost = HostInfo[xOptionGet(ioHostMQTT)].pName;
 	}
 	psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport ? nvsWifi.ipMQTTport : IP_PORT_MQTT + (10000 * xOptionGet(ioMQTTport)));
-	psCtx->ReConnect = 3;						// Add flag to enable auto reconnect...
+	psCtx->ReConnect = 3;								/* Add flag to enable auto reconnect */
 	if (debugTRACK && xOptionGet(ioMQcon))
 		SL_NOT("Using MQTT broker %s:%hu", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
 	return xNetOpen(psCtx);
