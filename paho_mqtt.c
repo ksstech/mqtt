@@ -121,7 +121,6 @@ int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) 
 	if (iRV == erSUCCESS)
 		iRV = xNetRecv(psCtx, buffer, i16Len);
 	if (iRV == i16Len) {
-		IF_EXEC_2(statsMQTT_RX > 0, x32MMAupdate, psMqttRX, (x32_t)iRV);
 		return iRV;
 	}
 	// paho does not want to know about EAGAIN, filter out and return 0...
@@ -143,7 +142,6 @@ int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime)
 	int iRV = xNetSelect(psCtx, selFLAG_WRITE);
 	if (iRV > erSUCCESS)
 		iRV = xNetSend(psCtx, buffer, i16Len);
-	IF_EXEC_2(statsMQTT_TX > 0 && (iRV == i16Len), x32MMAupdate, psMqttTX, (x32_t)iRV);
 	return iRV;
 }
 
@@ -151,8 +149,6 @@ void vMqttNetworkInit(Network * psNetwork) {
 	psNetwork->sCtx.sd = -1;
 	psNetwork->mqttread = xMqttRead;
 	psNetwork->mqttwrite = xMqttWrite;
-	IF_EXEC_1(statsMQTT_RX > 0, psMqttRX = px32MMAinit, vfUXX);
-	IF_EXEC_1(statsMQTT_TX > 0, psMqttTX = px32MMAinit, vfUXX);
 }
 
 int xMqttNetworkConnect(netx_t * psCtx) {
