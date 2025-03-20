@@ -156,7 +156,7 @@ void vMqttNetworkInit(Network * psNetwork) {
 
 int xMqttNetworkConnect(netx_t * psCtx) {
 	memset(psCtx, 0 , sizeof(netx_t));
-	psCtx->type = SOCK_STREAM;
+	psCtx->c.type = SOCK_STREAM;
 	psCtx->flags = SO_REUSEADDR;
 	psCtx->sa_in.sin_family= AF_INET;
 	if (nvsWifi.ipMQTT) {								// MQTT broker specified
@@ -167,7 +167,7 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 	}
 	psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport ? nvsWifi.ipMQTTport : IP_PORT_MQTT + (10000 * xOptionGet(ioMQTTport)));
 #if (appRECONNECT > 0)
-	psCtx->ReConnect = 3;								/* Add flag to enable auto reconnect */
+	psCtx->c.RCmax = 3;									/* Add flag to enable auto reconnect */
 #endif
 	if (debugTRACK && xOptionGet(ioMQcon))
 		SL_NOT("Using MQTT broker %s:%hu", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
