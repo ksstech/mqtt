@@ -120,8 +120,6 @@ int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) 
 	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
 	if (iRV == erSUCCESS)
 		iRV = xNetRecv(psCtx, buffer, i16Len);
-	if (iRV == i16Len)
-		return iRV;
 	// paho does not want to know about EAGAIN, filter out and return 0...
 	return (iRV < 0 && psCtx->error == EAGAIN) ? 0 : iRV;
 }
