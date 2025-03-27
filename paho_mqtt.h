@@ -2,9 +2,7 @@
 
 #pragma once
 
-#include "printfx.h"
 #include "socketsX.h"
-#include "statistics.h"
 
 #ifdef __cplusplus
 extern "C" {
