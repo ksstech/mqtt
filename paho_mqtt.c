@@ -34,7 +34,6 @@ Add following line at end of MQTTClient.h, before #endif
 #include "hal_options.h"
 #include "certificates.h"
 #include "MQTTClient.h"
-#include "report.h"
 #include "statistics.h"
 #include "syslog.h"
 #include "errors_events.h"
