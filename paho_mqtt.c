@@ -135,7 +135,7 @@ int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime)
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = xOptionGet(dbMQTTrw) & 2 ? 1 : 0);
 	psCtx->tOut = mSecTime;
-	return  xNetSend(psCtx, buffer, i16Len);
+	return xNetSend(psCtx, buffer, i16Len);
 }
 
 void vMqttNetworkInit(Network * psNetwork) {
