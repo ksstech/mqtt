@@ -165,10 +165,9 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 }
 
 void vMqttDefaultHandler(MessageData * psMD) {
-	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'",
-		psMD->message->qos, psMD->message->retained,psMD->message->dup, psMD->message->id,
-		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data,
-		psMD->message->payloadlen, psMD->message->payload);
+	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'", psMD->message->qos,
+		psMD->message->retained, psMD->message->dup, psMD->message->id, psMD->topicName->lenstring.len,
+		psMD->topicName->lenstring.data, psMD->message->payloadlen, psMD->message->payload);
 }
 
 #endif
