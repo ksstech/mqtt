@@ -31,7 +31,6 @@ Add following line at end of MQTTClient.h, before #endif
 
 #if (appAEP > 0)
 #include "hal_network.h"
-#include "hal_options.h"
 #include "certificates.h"
 #include "MQTTClient.h"
 #include "statistics.h"
