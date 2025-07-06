@@ -114,7 +114,7 @@ void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem); }
  */
 int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
-	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = xOptionGet(dbMQTTrw) & 1);
+	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = OPT_GET(dbMQTTrw) & 1);
 	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
 	if (iRV == erSUCCESS)
 		iRV = xNetRecv(psCtx, buffer, i16Len);
@@ -132,7 +132,7 @@ int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) 
  */
 int	xMqttWrite(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
-	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = xOptionGet(dbMQTTrw) & 2 ? 1 : 0);
+	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.w = OPT_GET(dbMQTTrw) & 2 ? 1 : 0);
 	psCtx->tOut = mSecTime;
 	return xNetSend(psCtx, buffer, i16Len);
 }
@@ -152,13 +152,13 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 		snprintfx(MQTTHostName, sizeof(MQTTHostName), "%#-I", nvsWifi.ipMQTT);
 		psCtx->pHost = MQTTHostName;
 	} else {											// default cloud MQTT host
-		psCtx->pHost = HostInfo[xOptionGet(ioHostMQTT)].pName;
+		psCtx->pHost = HostInfo[OPT_GET(ioHostMQTT)].pName;
 	}
-	psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport ? nvsWifi.ipMQTTport : IP_PORT_MQTT + (10000 * xOptionGet(ioMQTTport)));
+	psCtx->sa_in.sin_port = htons(nvsWifi.ipMQTTport ? nvsWifi.ipMQTTport : IP_PORT_MQTT + (10000 * OPT_GET(ioMQTTport)));
 #if (appRECONNECT > 0)
 	psCtx->c.RCmax = 3;									/* Add flag to enable auto reconnect */
 #endif
-	if (debugTRACK && xOptionGet(ioMQcon))
+	if (debugTRACK && OPT_GET(ioMQcon))
 		SL_NOT("Using MQTT broker %s:%hu", psCtx->pHost, ntohs(psCtx->sa_in.sin_port));
 	return xNetOpen(psCtx);
 }
