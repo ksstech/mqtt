@@ -33,6 +33,7 @@ Add following line at end of MQTTClient.h, before #endif
 #include "hal_network.h"
 #include "certificates.h"
 #include "MQTTClient.h"
+#include "options.h"
 #include "statistics.h"
 #include "syslog.h"
 #include "errors_events.h"

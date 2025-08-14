@@ -18,7 +18,7 @@ set( srcs "paho_mqtt.c"
 
 set( include_dirs "." "${PPaho}/MQTTClient-C/src" "${PPaho}/MQTTPacket/src" )
 set( priv_include_dirs )
-set( requires "confidential main" )
+set( requires "socketsX" )
 set( priv_requires )
 
 idf_component_register(
