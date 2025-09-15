@@ -29,7 +29,7 @@ Add following line at end of MQTTClient.h, before #endif
 
 #include "hal_platform.h"
 
-#if (appAEP > 0)
+#if (cmakeAEP > 0)
 #include "hal_network.h"
 #include "certificates.h"
 #include "MQTTClient.h"
