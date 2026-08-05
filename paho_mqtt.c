@@ -165,9 +165,16 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 }
 
 void vMqttDefaultHandler(MessageData * psMD) {
-	SL_ERR("QoS=%d  Retained=%d  Dup=%d  ID=%d  Topic='%.*s'  PL='%.*s'", psMD->message->qos,
-		psMD->message->retained, psMD->message->dup, psMD->message->id, psMD->topicName->lenstring.len,
-		psMD->topicName->lenstring.data, psMD->message->payloadlen, psMD->message->payload);
+	/* No handler matched = the message is being DISCARDED, say so. Payload as capped text AND
+	 * capped hex: TB routes its (JSON) shared-attribute topic here by design, SW arrivals are
+	 * protobuf - each form is readable for one and mojibake for the other. ID omitted: paho only
+	 * populates it for QoS>0, so on QoS 0 it printed stale memory ("ID=16380", c734 2026-08-05). */
+	int Len = psMD->message->payloadlen;
+	SL_ERR("DISCARDED QoS=%d  R=%d  D=%d  Topic='%.*s'  PL[%d]='%.*s' %!'+hhY",
+		psMD->message->qos, psMD->message->retained, psMD->message->dup,
+		psMD->topicName->lenstring.len, psMD->topicName->lenstring.data, Len,
+		Len > 40 ? 40 : Len, psMD->message->payload,
+		Len > 16 ? 16 : Len, psMD->message->payload);
 }
 
 #endif
