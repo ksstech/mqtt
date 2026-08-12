@@ -192,14 +192,24 @@ extern MQTTClient sClient;						// local extern: adds no #include, one block to 
 
 static void vMqttTempDiscardDiag(void) {
 	static u8_t SigPrv = 0xFF;					// 0xFF = nothing reported yet
+	static u32_t tLast = 0;
 	u8_t Sig = sClient.isconnected ? 0x80 : 0;
 	for (int i = 0; i < MAX_MESSAGE_HANDLERS; ++i)
 		if (sClient.messageHandlers[i].topicFilter)
 			Sig |= (1 << i);
-	if (Sig == SigPrv)
-		return;									// same state, already on record
+	/* A state CHANGE reports immediately; an UNCHANGED state still reports once a minute. A pure
+	 * change-latch printed once per state per boot, so a second discard episode hours later was
+	 * silent - the burst you are looking at would carry no diagnostic at all. A 22-message burst
+	 * still costs ONE line. */
+	u32_t tNow = xTaskGetTickCount();
+	if (Sig == SigPrv && (tNow - tLast) < pdMS_TO_TICKS(60000))
+		return;
 	SigPrv = Sig;
-	SL_WARN("TEMPDIAG con=%d clean=%d slots=x%02X [0]'%s' [1]'%s' [2]'%s' [3]'%s' [4]'%s'",
+	tLast = tNow;
+	/* SL_ERR, not SL_WARN: this must clear the SAME severity gate as the DISCARDED line it
+	 * explains (ERROR=3, WARNING=4, lower is more severe) or it is filtered out precisely when
+	 * the thing it diagnoses is being logged. */
+	SL_ERR("TEMPDIAG con=%d clean=%d slots=x%02X [0]'%s' [1]'%s' [2]'%s' [3]'%s' [4]'%s'",
 		sClient.isconnected, sClient.cleansession, Sig & 0x1F,
 		sClient.messageHandlers[0].topicFilter ?: "-", sClient.messageHandlers[1].topicFilter ?: "-",
 		sClient.messageHandlers[2].topicFilter ?: "-", sClient.messageHandlers[3].topicFilter ?: "-",
