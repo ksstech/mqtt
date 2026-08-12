@@ -164,11 +164,57 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 	return xNetOpen(psCtx);
 }
 
+/* ########## TEMPORARY DIAGNOSTIC - DELETE THIS BLOCK AND ITS ONE CALL WHEN DIAGNOSED ##########
+ * Added 2026-08-12. Self-contained on purpose: this block + the single call below are the whole
+ * change, and mqttTEMP_DISCARD_DIAG 0 compiles both to nothing.
+ *
+ * Why: messages on SiteWhere/commands/<mac> - the GMAP data path - intermittently reach the
+ * DEFAULT handler and are dropped (c734 2026-08-05; c9c4 2026-08-11 22:33 lost ~22 IDENT blocks
+ * in 2s). Handler PRE-BINDING (sitewhere b07ee65, in tag v0.6.1.11 which c9c4 was running) did
+ * NOT fix it, and static analysis has now failed twice: MQTTConnectWithResults provably does not
+ * wipe the handler table, and RX/TX cannot race (MQTT_TASK defined, both take sClient.mutex).
+ * The one fact source-reading cannot supply is the table AS IT STANDS at the discard - so print it.
+ *
+ * Reading the output:
+ *   slots=x00      table was emptied - find which MQTTCloseSession path did it (cycle/keepalive,
+ *                  subscribe, unsubscribe, publish, disconnect - ALL wipe every slot, cleansession=1)
+ *   slots non-zero handlers ARE bound, so deliverMessage's topic comparison is failing instead:
+ *                  a different bug, and the search moves to isTopicMatched/MQTTPacket_equals
+ *   con=0          delivery while disconnected, which should be unreachable
+ *
+ * Reported only when the state CHANGES, so a 22-message burst costs ONE line, not 22 (c764 lesson). */
+#ifndef mqttTEMP_DISCARD_DIAG
+	#define	mqttTEMP_DISCARD_DIAG	1			// TEMP: 0 = compiled out entirely
+#endif
+
+#if (mqttTEMP_DISCARD_DIAG > 0)
+extern MQTTClient sClient;						// local extern: adds no #include, one block to delete
+
+static void vMqttTempDiscardDiag(void) {
+	static u8_t SigPrv = 0xFF;					// 0xFF = nothing reported yet
+	u8_t Sig = sClient.isconnected ? 0x80 : 0;
+	for (int i = 0; i < MAX_MESSAGE_HANDLERS; ++i)
+		if (sClient.messageHandlers[i].topicFilter)
+			Sig |= (1 << i);
+	if (Sig == SigPrv)
+		return;									// same state, already on record
+	SigPrv = Sig;
+	SL_WARN("TEMPDIAG con=%d clean=%d slots=x%02X [0]'%s' [1]'%s' [2]'%s' [3]'%s' [4]'%s'",
+		sClient.isconnected, sClient.cleansession, Sig & 0x1F,
+		sClient.messageHandlers[0].topicFilter ?: "-", sClient.messageHandlers[1].topicFilter ?: "-",
+		sClient.messageHandlers[2].topicFilter ?: "-", sClient.messageHandlers[3].topicFilter ?: "-",
+		sClient.messageHandlers[4].topicFilter ?: "-");
+}
+#endif
+
 void vMqttDefaultHandler(MessageData * psMD) {
 	/* No handler matched = the message is being DISCARDED, say so. Payload as capped text AND
 	 * capped hex: TB routes its (JSON) shared-attribute topic here by design, SW arrivals are
 	 * protobuf - each form is readable for one and mojibake for the other. ID omitted: paho only
 	 * populates it for QoS>0, so on QoS 0 it printed stale memory ("ID=16380", c734 2026-08-05). */
+	#if (mqttTEMP_DISCARD_DIAG > 0)
+	vMqttTempDiscardDiag();						// TEMP: delete with the block above
+	#endif
 	int Len = psMD->message->payloadlen;
 	SL_ERR("DISCARDED QoS=%d  R=%d  D=%d  Topic='%.*s'  PL[%d]='%.*s' %!'+hhY",
 		psMD->message->qos, psMD->message->retained, psMD->message->dup,
