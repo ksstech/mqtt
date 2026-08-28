@@ -164,6 +164,46 @@ int xMqttNetworkConnect(netx_t * psCtx) {
 	return xNetOpen(psCtx);
 }
 
+/* ########## TEMPORARY DIAGNOSTIC - DELETE THIS BLOCK AND ITS ONE HOOK WHEN DIAGNOSED ##########
+ * Added 2026-08-28. Pairs with the readPacket() hook in the (gitignored) vendored
+ * MQTTClient.c:127 - re-apply that 4-line hook if the vendored tree is ever refreshed.
+ *
+ * Why: at the BUFFER_OVERFLOW check readPacket() has read ONLY the fixed header; the whole body
+ * is still in the socket. So nothing can be dumped without reading it, and the stream is left
+ * desynced - which is exactly why cycle() closes the session and cleansession=1 wipes every
+ * handler slot (the -2 / GMAP-truncation mechanism). Draining the body restores sync: the
+ * oversized message is lost, but the SESSION survives.
+ *
+ * Reading the output:
+ *   OvSz rem=N       N is the true packet size - the number three buffer guesses have not had
+ *   OvSz UNDRAINED   drain failed mid-body, stream still desynced, session closed as before */
+#ifndef mqttTEMP_OVERSIZE_DIAG
+	#define	mqttTEMP_OVERSIZE_DIAG	1			// TEMP: 0 = compile out, but drop the hook too
+#endif
+
+#if (mqttTEMP_OVERSIZE_DIAG > 0)
+int xMqttDrainOversize(MQTTClient * psC, int RemLen, int HdrLen, unsigned int tmoMS) {
+	int Done = 0;
+	while (Done < RemLen) {
+		int Want = RemLen - Done;
+		if (Want > (int) psC->readbuf_size)
+			Want = (int) psC->readbuf_size;		// chunked: mqttread takes an int16_t length
+		int Got = psC->ipstack->mqttread(psC->ipstack, psC->readbuf, Want, tmoMS);
+		if (Got != Want) {
+			SL_ERR("OvSz UNDRAINED rem=%d done=%d got=%d", RemLen, Done, Got);
+			return BUFFER_OVERFLOW;				// still desynced, let cycle() close as before
+		}
+		if (Done == 0) {						// first chunk = topic + start of the protobuf header
+			int Dump = Want > 64 ? 64 : Want;
+			SL_WARN("OvSz rem=%d hdr=%d buf=%d '%.*s' %!'+hhY", RemLen, HdrLen,
+				(int) psC->readbuf_size, Dump, psC->readbuf, Dump, psC->readbuf);
+		}
+		Done += Got;
+	}
+	return 0;									// cycle() case 0 = no work due, session preserved
+}
+#endif
+
 /* ########## TEMPORARY DIAGNOSTIC - DELETE THIS BLOCK AND ITS ONE CALL WHEN DIAGNOSED ##########
  * Added 2026-08-12. Self-contained on purpose: this block + the single call below are the whole
  * change, and mqttTEMP_DISCARD_DIAG 0 compiles both to nothing.
