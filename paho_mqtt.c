@@ -1,4 +1,4 @@
-// paho_mqtt.c - Copyright (c) 2017-25 Andre M. Maree / KSS Technologies (Pty) Ltd.
+// paho_mqtt.c - Copyright (c) 2017-26 Andre M. Maree / KSS Technologies (Pty) Ltd.
 
 /*
 MQTT basic call chart:
@@ -113,12 +113,32 @@ void MutexUnlock(Mutex * mutex)	{ xRtosSemaphoreGive(&mutex->sem); }
  * @param[in]	mSecTime
  * @return	Number of bytes read (>0), Timeout (0) or Error (<0)
  */
+/* readPacket() assumes mqttread() returns ALL i16Len bytes or fails. On a short read it abandons
+ * the packet and leaves the remainder in the socket, so the NEXT header is decoded from mid-payload
+ * - garbage rem_len, BUFFER_OVERFLOW, session close. xNetRecv is a single recv() and POSIX allows
+ * it to return less, so loop to completion here. xNetRecvBlocks() is NOT usable: the socketsX block
+ * section is behind appUSE_SOCKET_LOCKS, which is defined nowhere and never built. */
+#define	mqttREAD_REST_MS	1000					// bound the wait for the REST of an arriving packet
+
 int	xMqttRead(Network * psNetwork, u8_t * buffer, i16_t i16Len, u32_t mSecTime) {
 	netx_t * psCtx = &psNetwork->sCtx;
 	IF_EXEC(debugTRACK, psCtx->d.d = psCtx->d.r = OPT_GET(dbMQTTrw) & 1);
 	int	iRV = xNetSetRecvTO(psCtx, mSecTime);
-	if (iRV == erSUCCESS)
-		iRV = xNetRecv(psCtx, buffer, i16Len);
+	if (iRV != erSUCCESS)
+		return iRV;
+	int xDone = 0;
+	while (xDone < i16Len) {
+		iRV = xNetRecv(psCtx, buffer + xDone, i16Len - xDone);
+		if (iRV < 1)								// 0 = peer closed, <0 = error or EAGAIN timeout
+			break;
+		xDone += iRV;
+		if (xDone < i16Len)							// packet mid-flight, cap the wait for the rest
+			xNetSetRecvTO(psCtx, mqttREAD_REST_MS);
+	}
+	if (xDone == i16Len)
+		return xDone;								// complete: the ONLY result readPacket accepts
+	if (xDone > 0)									// desynced, and this used to be entirely silent
+		SL_ERR("MQTT short read %d of %hd", xDone, i16Len);
 	// paho does not want to know about EAGAIN, filter out and return 0...
 	return (iRV < 0 && psCtx->error == EAGAIN) ? 0 : iRV;
 }
