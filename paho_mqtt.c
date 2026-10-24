@@ -23,7 +23,7 @@ MQTTStartTask		->	MQTTRun	(unused)	->	cycle
 												MQTTUnsubscribe		->	sendPacket				->	MutexLock
 																								->	mqttwrite
 ===== Vendored tree =====
-paho.mqtt.embedded-c is a pristine upstream clone (plus LF normalisation) and must stay that way.
+paho.mqtt.embedded-c is a pristine upstream clone and must stay that way.
 Everything platform specific enters through MQTTCLIENT_PLATFORM_HEADER=paho_mqtt.h: Timer, Network,
 Mutex, Thread, MQTT_TASK and the cycle() prototype (cycle is non-static upstream, no header edit).
 */
